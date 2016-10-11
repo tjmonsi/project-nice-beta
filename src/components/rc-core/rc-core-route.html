@@ -1,0 +1,102 @@
+<!-- Polymer dependencies -->
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
+
+<!-- Polymer Elements dependencies -->
+<link rel="import" href="../../../bower_components/app-route/app-location.html">
+<link rel="import" href="../../../bower_components/app-route/app-route.html">
+<link rel="import" href="../../../bower_components/neon-animation/neon-animated-pages.html">
+<link rel="import" href="../../../bower_components/neon-animation/animations/fade-in-animation.html">
+<link rel="import" href="../../../bower_components/neon-animation/animations/fade-out-animation.html">
+
+<!-- Component dependencies -->
+
+<dom-module id="rc-core-route">
+  <template strip-whitespace>
+    <style is="custom-style">
+      :host {
+        display: block;
+      }
+    </style>
+
+    <app-location route="{{route}}"></app-location>
+    <app-route
+      route="{{route}}"
+      pattern="/:page"
+      data="{{routeData}}"
+      tail="{{subroute}}"></app-route>
+      
+    <neon-animated-pages
+      selected="[[page]]"
+      attr-for-selected="name"
+      fallback-selection="[[notFound]]"
+      role="main"
+      id="core-content"
+      entry-animation="fade-in-animation" 
+      exit-animation="fade-out-animation">
+      
+      <content></content>
+      
+    </neon-animated-pages>
+    
+  </template>
+  <script>
+    Polymer({
+      is: 'rc-core-route',
+      
+      properties: {
+        route: {
+          type: Object,
+          notify: true
+        },
+        routeData: {
+          type: Object,
+          notify: true
+        },
+        subroute: {
+          type: Object,
+          notify: true
+        },
+        page: {
+          type: String,
+          reflectToAttribute: true,
+          notify: true,
+          observer: '_pageChanged'
+        },
+        defaultPage: {
+          type: String,
+          value: 'home'
+        },
+        notFound: {
+          type: String,
+          reflectToAttribute: true
+        }
+      },
+      
+      observers: [
+        '_routeDataPageChanged(routeData.page)'
+      ],
+      
+      _routeDataPageChanged: function(page) {
+        this.page = page || this.defaultPage;
+      },
+
+      _pageChanged: function(page) {
+        var el = this.$$('#core-content').selectedItem;
+        if (el) {
+          
+          var resolvedPageUrl = el.hasAttribute('source') ? this.resolveUrl(el.getAttribute('source')) : '';
+          this.importHref(resolvedPageUrl, null, this._showPage404.bind(this), true);
+          
+        } else if (this.finishLoadingPages) {
+          this._showPage404();
+        }
+      },
+      
+      _showPage404: function() {
+        this.page = this.notFound;
+      },
+      
+  
+    });
+  </script>
+</dom-module>

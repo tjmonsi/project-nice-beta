@@ -1,9 +1,12 @@
 <!-- Polymer dependencies -->
 <link rel="import" href="../../../bower_components/polymer/polymer.html">
 
+<!-- Polymer Element dependencies -->
+<link rel="import" href="../../../bower_components/app-layout/app-box/app-box.html">
+<link rel="import" href="../../../bower_components/app-layout/app-scroll-effects/effects/parallax-background.html">
+<link rel="import" href="../../../bower_components/iron-media-query/iron-media-query.html">
+
 <!-- Component dependencies -->
-
-
 
 <dom-module id="rc-core-shell">
   <template strip-whitespace>
@@ -13,12 +16,47 @@
       }
     </style>
     
+    <app-box
+      effects="parallax-background"
+      effects-config='{"parallax-background": {"scalar": -0.5}}'></app-box>
+      
+    <iron-media-query
+      query="[[_computeMediaTabletQuery()]]"
+      on-query-matches-changed="_onQueryTabletMatchesChanged"></iron-media-query>
+
+    <content select="[core-content]"></content>
+    
+    <content select="[core-header]"></content>
+    
+    <content select="[core-drawer]"></content>
+    
+    <content select="[core-drawer-right]"></content>
     
   </template>
   <script>
     Polymer({
       is: 'rc-core-shell',
+      
+      properties: {
+        scrollProgress: {
+          type: Number,
+          value: 0,
+          notify: true
+        }
+      },
+      
+      attached: function() {
+        this.scrollHeaderEffect();
+        window.addEventListener('scroll', this.scrollHeaderEffect.bind(this));
+      },
+      
+      detached: function() {
+        window.removeEventListener('scroll', this.scrollHeaderEffect.bind(this));
+      },
+      
+      scrollHeaderEffect: function() {
+        this.scrollProgress = this.$$('app-box').getScrollState().progress;
+      },
     })
   </script>
 </dom-module>
-      
