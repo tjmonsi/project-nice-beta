@@ -1,0 +1,49 @@
+<link rel="import" href="../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="./nice-utils-behavior.html">
+
+<script>
+  (function(){
+    'use strict';
+
+    /** @polymerBehavior Polymer.NiceCategoryBehavior */
+    Polymer.NiceCategoryBehaviorImpl = {
+
+      properties: {
+        category: {
+          type: Object
+        },
+
+        categories: {
+          type: Object
+        },
+
+        categoryPath: {
+          type: Object,
+          readOnly: true,
+          value: function() { return this._categoryPath; }
+        },
+
+        categoryGroup: {
+          type: String,
+          readOnly: true,
+          value: function() { return this._categoryGroup; }
+        }
+      },
+
+      get _categoryGroup() {
+        return 'category_group';
+      },
+
+      get _categoryPath() {
+        return {
+          categories: this._version + '/' + this._categoryGroup + '/categories'
+        };
+      },
+
+    };
+    Polymer.NiceCategoryBehavior = [
+      Polymer.NiceUtilsBehavior,
+      Polymer.NiceCategoryBehaviorImpl
+    ];
+  })();
+</script>

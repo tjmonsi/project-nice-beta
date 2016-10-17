@@ -1,0 +1,159 @@
+<link rel="import" href="../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="./nice-utils-behavior.html">
+
+<script>
+  (function(){
+    'use strict';
+    /*global Polymer*/
+    /*global firebase*/
+
+    /** @polymerBehavior Polymer.NiceArticleBehavior */
+    Polymer.NiceArticleBehaviorImpl = {
+
+      properties: {
+
+        photoblog: {
+          type: Object,
+          value: function() { return null; }
+        },
+
+        article: {
+          type: Object,
+          value: function() { return null; }
+        },
+        
+        articleTitle: {
+          type: String
+        },
+        
+        articleSubTitle: {
+          type: String
+        },
+        
+        articleHeaderImage: {
+          type: String
+        },
+        
+        articleDatePublished: {
+          type: String
+        },
+        
+        articleBody: {
+          type: String
+        },
+
+        articleId: {
+          type: String,
+          value: function() { return null; }
+        },
+
+        articlePath: {
+          type: Object,
+          readOnly: true,
+          value: function() { return this._articlePath; }
+        },
+
+        articleGroup: {
+          type: String,
+          readOnly: true,
+          value: function() { return this._articleGroup; }
+        }
+      },
+
+      get _articleGroup() {
+        return 'article_group';
+      },
+
+      get _articlePath() {
+        var options = this._version + '/' + this._articleGroup + '/options';
+        return {
+          articles: this._version + '/' + this._articleGroup + '/articles',
+          owners: this._version + '/' + this._articleGroup + '/owners',
+          media: this._version + '/' + this._articleGroup + '/media',
+          photoblog: this._version + '/' + this._articleGroup + '/photoblog',
+          tagWords: this._version + '/' + this._articleGroup + '/tagwords',
+          options: {
+            published: options + '/published'
+          }
+        };
+      },
+      
+      _createArticle: function(title) {
+        if (
+          firebase &&
+          this.user &&
+          this.roles &&
+          this._checkPermission &&
+          this._checkPermission('staff') 
+        ) {
+          var key = firebase.database().ref(this.articlePath.articles).push().key;
+          var updates = {};
+          if (key) {
+            this._showMessage('Creating a new Article');
+            updates[this.articlePath.articles +'/' + key] = {
+              title: title,
+              date_published: this._todayUTC,
+              date_created: this._todayUTC
+            };
+            updates[this.articlePath.owners + '/' + key] = {owner: this.user.uid};
+            updates[this.articlePath.options.published + '/' + key] = {draft: this._todayUTC};
+            
+            return firebase.database().ref().update(updates).then(function(){
+              window.location.assign('/article/edit/' + key);
+            }).catch(this._catchError.bind(this));
+          }
+        } 
+        return this._catchError(new Error('Doesn\'t have permission to create an article'));
+      },
+      
+      _deleteArticle: function() {
+        if (
+          firebase &&
+          this.user &&
+          this.roles &&
+          this._checkPermission &&
+          this._checkPermission('editor', this.owner) &&
+          this.articleId
+        ) {
+          var updates = {};
+          updates[this._articlePath.articles + '/'+ this.articleId] = null;
+          updates[this._articlePath.owners + '/'+ this.articleId] = null;
+          updates[this._articlePath.options.published + '/'+ this.articleId] = null;
+          updates[this._articlePath.options.draft + '/'+ this.articleId] = null;
+          
+          return firebase.database().ref(this._articlePath.articles + '/'+ this.articleId + '/tagwords').once('value', function(snapshot) {
+            var arr = snapshot.val();
+            for (var i in arr) {
+              updates[this._articlePath.tagWords + '/' + 'tagword-'+arr[i].replace(/\#|\.|\$|\[|\]/g, '_') + '/' + this.articleId] = null;
+            }
+            
+            return firebase.database().ref().update(updates).then(function() {
+              this._showMessage('Article successfully deleted');
+              window.location.assign('/article/');
+            }.bind(this)).catch(this._catchError.bind(this));
+            
+          }.bind(this), this._catchError.bind(this));
+          
+        }
+        return this._catchError(new Error('Doesn\'t have permission to delete this article'));
+      },
+
+      insertNewArticle: function() {
+        if (!(this.$$('#create-new-title').value && this.$$('#create-new-title').value.trim().length >= 0)) {
+          return this._catchError(new Error('Cannot create new article'));
+        }
+        this._createArticle(this.$$('#create-new-title').value);
+      },
+
+      _checkVideoString: function(video) {
+        return video && video.trim && video.trim().length > 0;
+      },
+
+      
+    };
+    Polymer.NiceArticleBehavior = [
+      Polymer.NiceUtilsBehavior,
+      Polymer.NiceArticleBehaviorImpl
+    ];
+  })();
+</script>

@@ -2,6 +2,23 @@
   "entrypoint": "index.html",
   "shell": "src/core-app.html",
   "fragments": [
+    "src/pages/nice-about/nice-about-page.html",
+    
+    "src/pages/nice-article/nice-article-page.html",
+    "src/pages/nice-article/nice-article-view-page/nice-article-view-page.html",
+    "src/pages/nice-article/nice-article-list-page/nice-article-list-page.html",
+    "src/pages/nice-article/nice-article-edit-page/nice-article-edit-page.html",
+    
+    "src/pages/nice-dashboard/nice-dashboard-page.html",
+    
+    "src/pages/nice-data/nice-data-page.html",
+    "src/pages/nice-data/nice-data-view-page/nice-data-view-page.html",
+    "src/pages/nice-data/nice-data-list-page/nice-data-list-page.html",
+    "src/pages/nice-data/nice-data-edit-page/nice-data-edit-page.html",
+    
+    "src/pages/nice-home/nice-home-page.html",
+    
+    "src/pages/nice-not-found/nice-not-found-page.html"
   ],
   "sourceGlobs": [
    "src/**/*",

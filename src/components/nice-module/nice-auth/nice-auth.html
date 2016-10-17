@@ -1,0 +1,67 @@
+<!-- Polymer dependencies -->
+<link rel="import" href="../../../../bower_components/polymer/polymer.html">
+
+<!-- Polymer Elements dependencies -->
+<link rel="import" href="../../../../bower_components/polymerfire/firebase-auth.html">
+<link rel="import" href="../../../../bower_components/paper-toast/paper-toast.html">
+
+
+<!-- Component dependencies -->
+
+<!-- Behvaior dependencies -->
+<link rel="import" href="../nice-behaviors/nice-user-behavior.html">
+
+<!-- Style dependencies -->
+<link rel="import" href="nice-auth-style.html">
+
+<dom-module id="nice-auth">
+  <template>
+    <style is="custom-style" include="nice-auth-style">
+      :host {
+        display: block;
+      }
+    </style>
+    
+    <firebase-auth
+      id="auth"
+      provider="google"
+      signed-in="{{signedIn}}"
+      user="{{user}}">
+    </firebase-auth>
+    
+    <div class="nice-auth-header">
+      <template is="dom-if" if="[[!user]]">
+        <a 
+          href="#"
+          class="nice-auth-item"
+          on-tap="login">
+          LOGIN
+        </a>
+      </template>
+      <template is="dom-if" if="[[user]]">
+        <a 
+          href="#"
+          class="nice-auth-item"
+          on-tap="logout">
+          LOGOUT
+        </a>
+      </template>
+    </div>
+    
+    <paper-toast id="toaster"></paper-toast>
+
+  </template>
+  <script>
+    Polymer({
+      is: 'nice-auth',
+      
+      behaviors: [
+        Polymer.NiceUserBehavior  
+      ],
+      
+      _toggleDrawer: function() {
+        this.fire('toggle-drawer', {});
+      }
+    })
+  </script>
+</dom-module>

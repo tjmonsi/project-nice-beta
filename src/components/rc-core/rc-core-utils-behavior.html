@@ -1,0 +1,50 @@
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
+<script>
+  (function() {
+    'use strict';
+
+    /** @polymerBehavior Polymer.RcCoreUtilsBehavior */
+    Polymer.RcCoreUtilsBehavior = {
+      windowSize: function() {
+        var width = 0;
+        var height = 0;
+        if (window && document) {
+          if ( typeof window.innerWidth === 'number' ) {
+            // Non-IE
+            width = window.innerWidth;
+            height = window.innerHeight;
+          } else if ( document.documentElement && (
+            document.documentElement.clientWidth ||
+            document.documentElement.clientHeight )) {
+            // IE 6+ in 'standards compliant mode'
+            width = document.documentElement.clientWidth;
+            height = document.documentElement.clientHeight;
+          } else if ( document.body && ( document.body.clientWidth || document.body.clientHeight ) ) {
+            // IE 4 compatible
+            width = document.body.clientWidth;
+            height = document.body.clientHeight;
+          }
+        }
+
+        return {width: width, height: height};
+      },
+      
+      _heightNodeChanged: function(e, node) {
+        var height;
+        if (e.indexOf('vh')) {
+          if (Modernizr && Modernizr.cssvhunit) {
+            height = e;
+          } else {
+            height = (parseFloat(e.replace(/vh/g, '')) * this.windowSize().height) + 'px';
+          }
+        } else if (e.indexOf('px')) {
+          height = e;
+        } else {
+          height = e + 'px';
+        }
+        
+        node.style.height = height;
+      },
+    };
+  })();
+</script>

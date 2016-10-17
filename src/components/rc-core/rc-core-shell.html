@@ -8,29 +8,51 @@
 
 <!-- Component dependencies -->
 
+
 <dom-module id="rc-core-shell">
-  <template strip-whitespace>
+  <template>
     <style is="custom-style">
       :host {
         display: block;
       }
     </style>
     
+    <!-- Custom Media Queries -->
+    <iron-media-query
+      query="[[_computeIsBelowWidthQuery(isBelowWidth)]]"
+      query-matches="{{isBelowWidthFlag}}"></iron-media-query>
+      
+    <iron-media-query
+      query="[[_computeIsAboveWidthQuery(isAboveWidth)]]"
+      query-matches="{{isAboveWidthFlag}}"></iron-media-query>
+      
+    <!-- Mobile First Queries -->
+    <iron-media-query
+      query="(min-width: 320px)"
+      query-matches="{{phones}}"></iron-media-query>
+    
+    <iron-media-query
+      query="(min-width: 480px)"
+      query-matches="{{tablets}}"></iron-media-query>
+      
+    <iron-media-query
+      query="(min-width: 840px)"
+      query-matches="{{smallDesktops}}"></iron-media-query>
+      
+    <iron-media-query
+      query="(min-width: 1200px)"
+      query-matches="{{largeScreens}}"></iron-media-query>
+    
+    <!-- Scroll Computation -->
     <app-box
       effects="parallax-background"
       effects-config='{"parallax-background": {"scalar": -0.5}}'></app-box>
-      
-    <iron-media-query
-      query="[[_computeMediaTabletQuery()]]"
-      on-query-matches-changed="_onQueryTabletMatchesChanged"></iron-media-query>
 
-    <content select="[core-content]"></content>
-    
-    <content select="[core-header]"></content>
-    
-    <content select="[core-drawer]"></content>
-    
-    <content select="[core-drawer-right]"></content>
+    <!-- Content ordering-->
+    <content id="core-content" select="[core-content]"></content>
+    <content id="core-header" select="[core-header]"></content>
+    <content id="core-drawer" select="[core-drawer]"></content>
+    <content id="core-drawer-right" select="[core-drawer-right]"></content>
     
   </template>
   <script>
@@ -42,7 +64,43 @@
           type: Number,
           value: 0,
           notify: true
+        },
+        isBelowWidth: {
+          type: Number,
+          value: 768
+        },
+        isAboveWidth: {
+          type: Number,
+          value: 768
+        },
+        isBelowWidthFlag: {
+          type: Boolean,
+          notify: true
+        },
+        isAboveWidthFlag: {
+          type: Boolean,
+          notify: true
+        },
+        phones: {
+          type: Boolean,
+          notify: true
+        },
+        tablets: {
+          type: Boolean,
+          notify: true
+        },
+        smallDesktops: {
+          type: Boolean,
+          notify: true
+        },
+        largeScreens: {
+          type: Boolean,
+          notify: true
         }
+      },
+      
+      listeners: {
+        'toggle-drawer': 'toggleDrawer',
       },
       
       attached: function() {
@@ -57,6 +115,24 @@
       scrollHeaderEffect: function() {
         this.scrollProgress = this.$$('app-box').getScrollState().progress;
       },
+      
+      _computeIsBelowWidthQuery: function(width) {
+        return '(max-width: ' + width + 'px)';
+      },
+      
+      _computeIsAboveWidthQuery: function(width) {
+        return '(min-width: ' + width + 'px)';
+      },
+      
+      toggleDrawer: function() {
+        var nodes = this.queryAllEffectiveChildren('[core-drawer]');
+        for (var i in nodes) {
+          var el = nodes[i];
+          if (el && el.toggleDrawer) {
+            el.toggleDrawer();
+          } 
+        }
+      }
     })
   </script>
 </dom-module>

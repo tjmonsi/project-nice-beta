@@ -1,0 +1,176 @@
+<!-- Polymer dependencies -->
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
+
+<!-- Polymer Elements dependencies -->
+<link rel="import" href="../../../bower_components/polymerfire/firebase-query.html">
+<link rel="import" href="../../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+
+<!-- Component dependencies -->
+<!-- RC-Layout dependencies -->
+<link rel="import" href="../../components/rc-layout/rc-side-content/rc-side-content.html">
+
+<!-- RC-Carousel dependencies -->
+<link rel="import" href="../../components/rc-carousel/rc-carousel.html">
+
+<!-- Nice-Module dependencies -->
+<link rel="import" href="../../components/nice-module/nice-hero-section/nice-hero-section.html">
+<link rel="import" href="../../components/nice-module/nice-category-list/nice-category-list.html">
+<link rel="import" href="../../components/nice-module/nice-summary-side-content/nice-summary-side-content.html">
+<link rel="import" href="../../components/nice-module/nice-summary-image-content/nice-summary-image-content.html">
+<link rel="import" href="../../components/nice-module/nice-summary-small-article/nice-summary-small-article.html">
+
+<!-- Behvaior dependencies -->
+<link rel="import" href="../../components/nice-module/nice-behaviors/nice-article-behavior.html">
+
+<!-- Style dependencies -->
+<link rel="import" href="nice-home-page-style.html">
+
+<dom-module id="nice-home-page">
+  <template>
+    <style is="custom-style" include="nice-home-page-style iron-flex iron-flex-alignment iron-flex-factors">
+      :host {
+        display: block;
+      }
+    </style>
+    
+    <firebase-query
+      path="[[articlePath.options.published]]"
+      data="{{frontArticles}}"
+      order-by-child="front"
+      limit-to-last="5"
+      start-at="[[_startAt]]">
+    </firebase-query>
+    
+    <firebase-query
+      path="[[articlePath.options.published]]"
+      data="{{videoArticles}}"
+      order-by-child="video"
+      limit-to-last="4">
+    </firebase-query>
+    
+    <firebase-query
+      path="[[articlePath.options.published]]"
+      data="{{peopleArticles}}"
+      order-by-child="people"
+      limit-to-last="4">
+    </firebase-query>
+    
+    <firebase-query
+      path="[[articlePath.options.published]]"
+      data="{{sapArticles}}"
+      order-by-child="sap"
+      limit-to-last="4">
+    </firebase-query>
+    
+    <firebase-query
+      path="[[articlePath.options.published]]"
+      data="{{pressArticles}}"
+      order-by-child="press"
+      limit-to-last="4">
+    </firebase-query>
+    
+    <rc-carousel height="100vh" carousel-interval="10000">
+      <template is="dom-repeat" items="[[frontArticles]]">
+        <nice-hero-section
+          article-id="[[item.$key]]"
+          data-index$="[[index]]"></nice-hero-section>
+      </template>
+    </rc-carousel>
+    
+    <nice-category-list></nice-category-list>
+    
+    <rc-side-content class="home-video-features-weather">
+      <div main-content class="home-video-features">
+        <h1 class="title">
+          Videos / Photoblog features
+        </h1>
+        <rc-side-content>
+          <div main-content class="home-video-features-highlight">
+            <nice-summary-image-content 
+              article-id="[[_returnArrayElementAttribute(videoArticles, 0, '$key', videoArticles.splices)]]"></nice-summary-image-content>
+          </div>
+          <div side-content class="home-video-features-list">
+            <template is="dom-repeat" items="[[videoArticles]]">
+              <template is="dom-if" if="[[index]]">
+                <nice-summary-side-content article-id="[[item.$key]]"></nice-summary-side-content>  
+              </template>
+              
+            </template>
+          </div>
+        </rc-side-content>
+      </div>
+      <div side-content class="home-weather">
+        
+      </div>
+    </rc-side-content>
+    
+    <div class="horizontal layout wrap">
+      <div class="flex rc--hide-phone"></div>
+      <div class="flex-2 article-list-section">
+        <h1>People</h1>
+        <nice-summary-small-article 
+          article-id="[[_returnArrayElementAttribute(peopleArticles, 0, '$key', peopleArticles.splices)]]"></nice-summary-small-article>
+        <template is="dom-repeat" items="[[peopleArticles]]">
+          <template is="dom-if" if="[[index]]">
+            <nice-summary-side-content article-id="[[item.$key]]"></nice-summary-side-content>  
+          </template>
+          
+        </template>  
+      </div>
+      <div class="flex-2 article-list-section">
+        <h1>SAP</h1>
+        <nice-summary-small-article 
+          article-id="[[_returnArrayElementAttribute(sapArticles, 0, '$key', sapArticles.splices)]]"></nice-summary-small-article>
+        <template is="dom-repeat" items="[[sapArticles]]">
+          <template is="dom-if" if="[[index]]">
+            <nice-summary-side-content article-id="[[item.$key]]"></nice-summary-side-content>  
+          </template>
+          
+        </template>  
+      </div>
+      <div class="flex-2 article-list-section">
+        <h1>Press</h1>
+        <nice-summary-small-article 
+          article-id="[[_returnArrayElementAttribute(pressArticles, 0, '$key', pressArticles.splices)]]"></nice-summary-small-article>
+        <template is="dom-repeat" items="[[pressArticles]]">
+          <template is="dom-if" if="[[index]]">
+            <nice-summary-side-content article-id="[[item.$key]]"></nice-summary-side-content>  
+          </template>
+          
+        </template>  
+      </div>
+      <div class="flex rc--hide-phone"></div>
+    </div>
+    
+  </template>
+  <script>
+    Polymer({
+      is: 'nice-home-page',
+      
+      properties: {
+        articles: {
+          type: Array
+        },
+        _startAt: {
+          type: Number,
+          readonly: true,
+          value: 1
+        },
+        queryParams: {
+          type: Object,
+          value: function() { return {}; }
+        },
+        index: {
+          
+        }
+      },
+      
+      behaviors: [
+        Polymer.NiceArticleBehavior  
+      ],
+      
+      
+      
+    })
+  </script>
+</dom-module>

@@ -1,0 +1,33 @@
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
+
+<script>
+  (function(){
+    'use strict';
+    /*global Polymer*/
+
+    /** @polymerBehavior Polymer.RcCoreUserBehavior */
+    Polymer.RcCoreUserBehavior = {
+
+      properties: {
+        user: {
+          type: Object,
+          notify: true,
+          value: function() { return null; },
+        }
+      },
+
+      login: function() {
+        console.log('login user here')
+      },
+
+      logout: function() {
+        if (this.user) {
+          console.log('Logout user here');
+          this.user = null
+        } else {
+          console.log('User already logged out')
+        }
+      },
+    };
+  })();
+</script>

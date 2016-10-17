@@ -1,11 +1,22 @@
 <!-- Polymer dependencies -->
 <link rel="import" href="../bower_components/polymer/polymer.html">
 
+<!-- Polymer Component dependencies -->
+<link rel="import" href="../bower_components/polymerfire/firebase-app.html">
+
 <!-- Component dependencies -->
 <!-- RC-Core dependencies -->
 <link rel="import" href="./components/rc-core/rc-core-shell.html">
+<link rel="import" href="./components/rc-core/rc-core-route.html">
 
 <!-- Nice-Module dependencies -->
+<link rel="import" href="./components/nice-module/nice-header/nice-header.html">
+<link rel="import" href="./components/nice-module/nice-drawer/nice-drawer.html">
+
+<!-- Page dependencies -->
+
+<!-- Behavior dependencies -->
+<link rel="import" href="./components/rc-core/rc-core-user-behavior.html">
 
 
 <dom-module id="core-app">
@@ -16,14 +27,109 @@
       }
     </style>
     
-    <rc-core-shell>
+    <firebase-app
+      api-key="AIzaSyBzGu9Aq0wiRaZ1IzXnDFw-h1nr4hW86yI"
+      auth-domain="project-nice-polymer.firebaseapp.com"
+      database-url="https://project-nice-polymer.firebaseio.com"
+      storage-bucket="project-nice-polymer.appspot.com">
+    </firebase-app>
+    
+    <rc-core-shell 
+      scroll-progress="{{scrollProgress}}"
+      tablets="{{hideDrawer}}">
       
+      <!-- HEADER -->
+      <nice-header 
+        core-header 
+        page="[[page]]" 
+        scroll-progress="[[scrollProgress]]"
+        navigation-list="[[navigationList]]"
+        user="{{user}}"></nice-header>
+      
+      <!-- DRAWER -->  
+      <nice-drawer
+        core-drawer
+        page="[[page]]"
+        navigation-list="[[navigationList]]"
+        hide-drawer="[[hideDrawer]]"></nice-drawer>
+      
+      <!-- CORE-CONTENT -->
+      <rc-core-route 
+        core-content
+        default-page="home"
+        page="{{page}}"
+        user="{{user}}"
+        subroute="{{subroute}}"
+        query-params="{{queryParams}}"
+        navigation-list="{{navigationList}}"
+        not-found-tag="nice-not-found-page"
+        not-found-source="/src/pages/nice-not-found/nice-not-found-page.html">
+        
+        <nice-home-page 
+          page="home" 
+          source="/src/pages/nice-home/nice-home-page.html"
+          query-params="{{queryParams}}"
+          label="HOME"></nice-home-page>
+          
+        <nice-about-page 
+          page="about" 
+          source="/src/pages/nice-about/nice-about-page.html" 
+          label="ABOUT US"></nice-about-page>
+          
+        <nice-article-page 
+          page="article" 
+          source="/src/pages/nice-article/nice-article-page.html" 
+          label="FEATURES">
+          <rc-core-route 
+            sub
+            prefix="/article"
+            route="{{subroute}}"
+            default-page="list"
+            not-found-tag="nice-not-found-page"
+            not-found-source="/src/pages/nice-not-found/nice-not-found-page.html">
+            <nice-article-list-page 
+              page="list" 
+              source="/src/pages/nice-article/nice-article-list-page/nice-article-list-page.html"
+              query-params="{{queryParams}}"></nice-article-list-page>
+            <nice-article-view-page 
+              page="view" 
+              source="/src/pages/nice-article/nice-article-view-page/nice-article-view-page.html"></nice-article-view-page>
+            <nice-article-edit-page 
+              page="edit" 
+              source="/src/pages/nice-article/nice-article-edit-page/nice-article-edit-page.html"></nice-article-edit-page>
+          </rc-core-route>
+        </nice-article-page>
+          
+        <nice-data-page 
+          page="data" 
+          source="/src/pages/nice-data/nice-data-page.html" 
+          label="DATA"></nice-data-page>
+          
+        <nice-dashboard-page 
+          page="dashboard" 
+          source="/src/pages/nice-dashboard/nice-dashboard-page.html" 
+          label="DASHBOARD"
+          auth></nice-dashboard-page>
+          
+      </rc-core-route>
     </rc-core-shell>
     
   </template>
   <script>
+    /*global Polymer*/
+  
     Polymer({
       is: 'core-app',
-    })
+      
+      properties: {
+        navigationList: {
+          type: Array,
+        }
+      },
+      
+      behaviors: [
+        Polymer.RcCoreUserBehavior  
+      ]
+    });
   </script>
 </dom-module>

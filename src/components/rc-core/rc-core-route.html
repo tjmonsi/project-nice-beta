@@ -7,27 +7,47 @@
 <link rel="import" href="../../../bower_components/neon-animation/neon-animated-pages.html">
 <link rel="import" href="../../../bower_components/neon-animation/animations/fade-in-animation.html">
 <link rel="import" href="../../../bower_components/neon-animation/animations/fade-out-animation.html">
+<link rel="import" href="../../../bower_components/app-layout/app-header/app-header.html">
+<link rel="import" href="../../../bower_components/paper-spinner/paper-spinner-lite.html">
+<link rel="import" href="../../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
 
 <!-- Component dependencies -->
 
+<!-- Behvaior dependencies -->
+<link rel="import" href="./rc-core-user-behavior.html">
+
 <dom-module id="rc-core-route">
-  <template strip-whitespace>
-    <style is="custom-style">
+  <template>
+    <style is="custom-style" include="iron-flex iron-flex-alignment">
       :host {
         display: block;
       }
+      
+      .spinner {
+        margin-top: 200px;
+      }
+      
+      paper-spinner-lite {
+        width: 100px;
+        height: 100px;
+        --paper-spinner-stroke-width: 6px
+      }
     </style>
 
-    <app-location route="{{route}}"></app-location>
+    <template is="dom-if" if="[[!sub]]">
+      <app-location route="{{route}}"></app-location>  
+    </template>
+    
     <app-route
       route="{{route}}"
       pattern="/:page"
       data="{{routeData}}"
+      query-params="{{queryParams}}"
       tail="{{subroute}}"></app-route>
       
     <neon-animated-pages
-      selected="[[page]]"
-      attr-for-selected="name"
+      selected$="[[page]]"
+      attr-for-selected="page"
       fallback-selection="[[notFound]]"
       role="main"
       id="core-content"
@@ -36,14 +56,32 @@
       
       <content></content>
       
+      <div page="spinner" class="spinner">
+        <div class="horizontal layout">
+          <div class="flex"></div>
+          <paper-spinner-lite alt="Loading Page" active></paper-spinner-lite>  
+          <div class="flex"></div>
+        </div>
+      </div>
     </neon-animated-pages>
     
   </template>
   <script>
+    /*global Polymer*/
+    /*global Node*/
+
     Polymer({
       is: 'rc-core-route',
       
       properties: {
+        sub: {
+          type: Boolean,
+          value: false,
+        },
+        prefix: {
+          type: String,
+          value: function() { return null; }
+        },
         route: {
           type: Object,
           notify: true
@@ -52,9 +90,13 @@
           type: Object,
           notify: true
         },
-        subroute: {
+        queryParams: {
           type: Object,
           notify: true
+        },
+        subroute: {
+          type: Object,
+          notify: true,
         },
         page: {
           type: String,
@@ -62,39 +104,166 @@
           notify: true,
           observer: '_pageChanged'
         },
+        viewPage: {
+          type: String,
+          reflectToAttribute: true,
+        },
+        _loadedPages: {
+          type: Array,
+          value: function () { return ['spinner']; }
+        },
         defaultPage: {
           type: String,
           value: 'home'
         },
         notFound: {
           type: String,
-          reflectToAttribute: true
+          reflectToAttribute: true,
+          value: 'not-found'
+        },
+        notFoundTag: {
+          type: String
+        },
+        notFoundSource: {
+          type: String
+        },
+        _navigationObject: {
+          type: Object,
+          value: function() { return {}; }
+        },
+        navigationList: {
+          type: Array,
+          value: function() { return []; },
+          notify: true
+        },
+        _finishLoadingPages: {
+          type: Boolean,
+          value: false
         }
       },
       
-      observers: [
-        '_routeDataPageChanged(routeData.page)'
+      behaviors: [
+        Polymer.RcCoreUserBehavior
       ],
       
-      _routeDataPageChanged: function(page) {
-        this.page = page || this.defaultPage;
+      observers: [
+        '_routeDataPageChanged(routeData.page, route.prefix, prefix)',
+        '_userLoggedIn(user, viewPage)'
+      ],
+      
+      attached: function() {
+        this._observer = Polymer.dom(this).observeNodes(function(info) {
+          this._contentAdded(info.addedNodes.filter(function(node) {
+            return (node.nodeType === Node.ELEMENT_NODE);
+          }));
+        }.bind(this));
+        
+        if (this.notFoundSource && this.notFoundTag) {
+          var notFound = document.createElement(this.notFoundTag);
+          notFound.setAttribute('source', this.notFoundSource);
+          notFound.setAttribute('page', this.notFound);
+          notFound.setAttribute('not-included-in-links', '');
+          Polymer.dom(this.$$('#core-content')).appendChild(notFound);
+        }
+      },
+      
+      detached: function() {
+        Polymer.dom(this).unobserveNodes(this._observer);
+      },
+      
+      _routeDataPageChanged: function(page, prefix, parentRoute) {
+        if (!parentRoute || prefix === parentRoute) {
+          this.page = page || this.defaultPage;
+          this.viewPage = page || this.defaultPage;
+        } else {
+          this.page = 'spinner';  
+        }
+      },
+      
+      _userLoggedIn: function(user, viewPage) {
+        this.$$('#core-content').select(viewPage);
+        this._pageChanged(viewPage);
       },
 
       _pageChanged: function(page) {
-        var el = this.$$('#core-content').selectedItem;
-        if (el) {
-          
-          var resolvedPageUrl = el.hasAttribute('source') ? this.resolveUrl(el.getAttribute('source')) : '';
-          this.importHref(resolvedPageUrl, null, this._showPage404.bind(this), true);
-          
-        } else if (this.finishLoadingPages) {
-          this._showPage404();
+        // console.log(page)
+        if (this._loadedPages && this._loadedPages.indexOf(page) < 0) {
+          var el = this.$$('#core-content').selectedItem;
+          if (el) {
+            var resolvedPageUrl = el.hasAttribute('source') ? this.resolveUrl(el.getAttribute('source')) : '';
+            var auth = el.hasAttribute('auth');
+            
+            this.page = 'spinner';
+
+            if ((auth && this.user) || !auth) {
+              if (this._waitingForLogin) {
+                clearTimeout(this._waitingForLogin);  
+              }
+              
+              this.importHref(resolvedPageUrl, this._pageLoaded.bind(this, page), this._showPage404.bind(this), true);  
+            } else {
+              this._waitForLogin();
+            }
+          } else if (this._finishLoadingPages) {
+            this._showPage404();
+          }  
         }
+      },
+      
+      _pageLoaded: function(page) {
+        this.push('_loadedPages', page);
+        this.page = this.viewPage;
+        this._pageChanged(this.page);
+      },
+      
+      _waitForLogin: function() {
+        this._waitingForLogin = setTimeout(function() {
+          console.log('403')
+          this._showPage403();
+        }.bind(this), 5000);
+      },
+      
+      _showPage403: function() {
+        this.page = this.notFound;
       },
       
       _showPage404: function() {
         this.page = this.notFound;
       },
+      
+      _contentAdded: function(pages) {
+        for (var i in pages) {
+          var el = pages[i];
+          
+          if (el && el.hasAttribute && el.hasAttribute('page') && !el.hasAttribute('not-included-in-links')) {
+            var page = el.getAttribute('page');
+            var label = el.getAttribute('label');
+            var auth = el.hasAttribute('auth');
+            var role = el.getAttribute('role');
+            var prefix = this.route && this.route.prefix ? this.route.prefix : '';
+            this.set('_navigationObject.' + page, {
+              url: page ? prefix + '/' + page + '/': '#',
+              label: label ? label : 'Link',
+              page: page ? page : 'page',
+              auth: auth,
+              role: role ? role : null
+            });
+          }
+        }
+        
+        var navigationList = [];
+        
+        for (var l in this._navigationObject) {
+          navigationList.push(this._navigationObject[l]);
+        }
+        this.set('navigationList', navigationList);
+       
+       
+        Polymer.dom.flush();
+        this._finishLoadingPages = true;
+        this.$$('#core-content').select(this.page);
+        this._pageChanged(this.page);
+      }
       
   
     });

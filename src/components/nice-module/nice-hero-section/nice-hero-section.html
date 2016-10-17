@@ -1,0 +1,154 @@
+<!-- Polymer dependencies -->
+<link rel="import" href="../../../../bower_components/polymer/polymer.html">
+
+<!-- Polymer Elements dependencies -->
+<link rel="import" href="../../../../bower_components/polymerfire/firebase-document.html">
+<link rel="import" href="../../../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="../../../../bower_components/paper-button/paper-button.html">
+
+<!-- Component dependencies -->
+
+<!-- Behvaior dependencies -->
+<link rel="import" href="../nice-behaviors/nice-article-behavior.html">
+<link rel="import" href="../../rc-core/rc-core-utils-behavior.html">
+
+<!-- Style dependencies -->
+<link rel="import" href="nice-hero-section-style.html">
+
+<dom-module id="nice-hero-section">
+  <template>
+    <style is="custom-style" include="nice-hero-section-style iron-flex iron-flex-alignment">
+      :host {
+        display: block;
+      }
+      
+      app-box {
+        --block-section-background: none;
+        --block-section-color-background: #000000;
+        --block-section-parallax: 100%;
+        --app-box-background-front-layer: {
+          background-color: var(--block-section-color-background);
+          background-image: var(--block-section-background);
+          background-repeat: no-repeat;
+          background-attachment: scroll;
+          height: var(--block-section-parallax);
+          background-position: center top;
+          background-size: cover;
+        }
+      }
+    </style>
+    
+    <template is="dom-if" if="[[articleId]]">
+      <firebase-document
+        path="[[articlePath.articles]]/[[articleId]]/title"
+        data="{{articleTitle}}">
+      </firebase-document>
+      <firebase-document
+        path="[[articlePath.articles]]/[[articleId]]/sub_title"
+        data="{{articleSubTitle}}">
+      </firebase-document>
+      <firebase-document
+        path="[[articlePath.articles]]/[[articleId]]/header_image"
+        data="{{heroImage}}">
+      </firebase-document>
+    </template>
+    
+    <app-box 
+      class="hero-section" 
+      effects="parallax-background"
+      effects-config='{"parallax-background": {"scalar": -0.5}}'>
+      <template is="dom-if" if="[[_forceZero(articleTitle)]]">
+        <div class="vertical layout hero-content-container">
+          <div class="flex"></div>
+          <div class="horizontal layout">
+            <div class="flex"></div>
+            <div class="hero-content">
+              <h1>
+                [[articleTitle]]
+              </h1>
+              <p>
+                [[articleSubTitle]]
+              </p>
+              <a href="/article/view/[[articleId]]">
+                <paper-button>
+                  Read More
+                </paper-button>  
+              </a>
+            </div>
+            <div class="flex"></div>
+          </div>
+          
+          <div class="flex"></div>
+        </div>  
+      </template>
+    </app-box>
+    
+  </template>
+  <script>
+    Polymer({
+      is: 'nice-hero-section',
+      
+      properties: {
+        heroImage: {
+          type: String,
+          observer: '_blockImageChanged'
+        },
+        parallax: {
+          type: Boolean,
+          value: false,
+          observer: '_parallaxChanged'
+        },
+        itemHeight: {
+          type: Number,
+          notify: true
+        },
+        height: {
+          type: String,
+          value: '100vh',
+          observer: '_resize'
+        }
+      },
+      
+      behaviors: [
+        Polymer.RcCoreUtilsBehavior,
+        Polymer.NiceArticleBehavior
+      ],
+      
+      attached: function() {
+        this._resize();
+        window.addEventListener('resize', this._resize.bind(this));
+      },
+      
+      detached: function() {
+        window.removeEventListener('resize', this._resize.bind(this));
+      },
+      
+      _resize: function() {
+        this._heightNodeChanged(this.height, this.$$('.hero-section'));
+      },
+      
+      resetLayout: function() {
+        this.$$('.hero-section').resetLayout();
+      },
+      
+      _blockImageChanged: function(image) {
+        if (image) {
+          var img = new Image();
+          img.onload = function(){
+            // console.log('loaded' + this.articleId)
+            this.$$('.hero-section').customStyle['--block-section-background'] = 'url('+image+')';
+            this.$$('.hero-section').updateStyles();
+            this.$$('.hero-section').resetLayout();
+          }.bind(this);
+          img.src = image;
+        }
+      },
+      
+      _parallaxChanged: function(parallax) {
+        this.$$('.hero-section').customStyle['--block-section-parallax'] = parallax ? '120%' : '100%';
+        this.$$('.hero-section').updateStyles()
+        this.$$('.hero-section').resetLayout();
+      }
+    })
+  </script>
+</dom-module>

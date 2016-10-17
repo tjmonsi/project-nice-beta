@@ -1,0 +1,62 @@
+<!-- Polymer dependencies -->
+<link rel="import" href="../../../../bower_components/polymer/polymer.html">
+
+<!-- Polymer Elements dependencies -->
+<link rel="import" href="../../../../bower_components/paper-material/paper-material.html">
+<link rel="import" href="../../../../bower_components/iron-image/iron-image.html">
+
+<!-- Component dependencies -->
+<!-- RC-Layout dependencies -->
+<link rel="import" href="../../rc-layout/rc-side-content/rc-side-content.html">
+
+<!-- Behvaior dependencies -->
+<link rel="import" href="../../rc-core/rc-core-utils-behavior.html">
+
+<!-- Style dependencies -->
+<link rel="import" href="nice-summary-image-content-style.html">
+
+<dom-module id="nice-summary-image-content">
+  <template>
+    <style is="custom-style" include="nice-summary-image-content-style">
+      :host {
+        display: block;
+      }
+    </style>
+    
+    <firebase-document
+      path="[[articlePath.articles]]/[[articleId]]/title"
+      data="{{articleTitle}}">
+    </firebase-document>
+    <firebase-document
+      path="[[articlePath.articles]]/[[articleId]]/date_published"
+      data="{{articleDatePublished}}">
+    </firebase-document>
+    <firebase-document
+      path="[[articlePath.articles]]/[[articleId]]/header_image"
+      data="{{articleImage}}">
+    </firebase-document>
+    
+    <a href="/article/view/[[articleId]]">
+      <iron-image class="background" src$="[[articleImage]]" sizing="cover" fade preload></iron-image>
+      <div class="frontground">
+        <h2>
+          [[_trimText(articleTitle)]]
+        </h2>
+        <p>
+          Last Published: [[articleDatePublished]]
+        </p>
+      </div>
+    </a>
+    
+    
+  </template>
+  <script>
+    Polymer({
+      is: 'nice-summary-image-content',
+      
+      behaviors: [
+        Polymer.NiceArticleBehavior  
+      ]
+    })
+  </script>
+</dom-module>

@@ -1,7 +1,29 @@
-.hello {
-  text-align: center;
+// rc-carousel
+@import '../../styles/variables';
+
+:host {
+  display: block;
+  position: relative;
+  overflow-y: hidden;
+}
+
+.carousel-buttons {
+  position: absolute;
+  bottom: 10px;
+  width: 100%;
   
-  .world {
-    color: blue;
+  .carousel-button {
+    cursor: pointer;
+    width: 17px;
+    height: 17px;
+    border-radius: 50%;
+    border: 0px;
+    margin-right: 10px;
+    margin-left: 10px;
+    background-color: $gray-dark;
+    
+    &.iron-selected {
+      background-color: $gray-light;
+    }
   }
 }

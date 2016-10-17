@@ -1,0 +1,28 @@
+// nice-auth-style
+
+@import '../../../styles/variables';
+@import '../../../styles/mixins';
+
+.nice-auth-item {
+  
+}
+
+.nice-auth-header {
+  .nice-auth-item {
+    color: $gray-dark;
+    text-decoration: none;
+    margin-left: 25px;
+    margin-right: 80px;
+    
+    @include tablet {
+      margin-right: 20px;
+      font-size: 0.7em;
+    }
+    
+    @include smalldesktop {
+      font-size: 0.7em;
+      margin-right: 20px;
+      margin-left: 10px;
+    }
+  }
+}

@@ -1,0 +1,50 @@
+<!-- Polymer dependencies -->
+<link rel="import" href="../../../../bower_components/polymer/polymer.html">
+
+<!-- Polymer Elements dependencies -->
+<link rel="import" href="../../../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+
+<!-- Component dependencies -->
+
+<!-- Style dependencies -->
+
+<dom-module id="rc-side-content">
+  <template>
+    <style is="custom-style" include="iron-flex iron-flex-alignment iron-flex-factors">
+      :host {
+        display: block;
+      }
+    </style>
+    
+    <div class="horizontal layout wrap">
+      <template is="dom-if" if="[[!rightContent]]">
+        <div class="flex-6">
+          <content select="[main-content]"></content>
+        </div>
+      </template>
+      
+      <div class="flex-3">
+        <content select="[side-content]"></content>
+      </div>
+      
+      <template is="dom-if" if="[[rightContent]]">
+        <div class="flex-6">
+          <content select="[main-content]"></content>
+        </div>
+      </template>
+    </div>
+    
+  </template>
+  <script>
+    Polymer({
+      is: 'rc-side-content',
+      
+      properties: {
+        rightContent: {
+          type: Boolean,
+          value: false
+        }
+      }
+    })
+  </script>
+</dom-module>

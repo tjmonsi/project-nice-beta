@@ -1,0 +1,161 @@
+<link rel="import" href="../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../rc-core/rc-core-user-behavior.html">
+<link rel="import" href="./nice-utils-behavior.html">
+
+<script>
+  (function(){
+    'use strict';
+    /*global firebase*/
+    /*global Polymer*/
+
+    /** @polymerBehavior Polymer.NiceUserBehavior */
+    Polymer.NiceUserBehaviorImpl = {
+
+      properties: {
+        signedIn: {
+          type: Boolean,
+          notify: true,
+          value: false
+        },
+        roles: {
+          type: Object,
+          value: function() {
+            return {
+              admin: false,
+              editor: false,
+              staff: false,
+              member: false,
+              pending: false
+            };
+          }
+        },
+        owner: {
+          type: Object,
+          value: function() { return null; }
+        },
+        userPath: {
+          type: Object,
+          readOnly: true,
+          value: function() { return this._userPath; }
+        },
+        userGroup: {
+          type: String,
+          readOnly: true,
+          value: function() { return this._userGroup; }
+        },
+      },
+
+      observers: [
+        '_setRole(memberRole)',
+        '_setPending(pendingRole)'
+      ],
+
+      get _userGroup() {
+        return 'user_group';
+      },
+
+      get _userPath() {
+        var options = this._version + '/' + this._userGroup + '/roles';
+        return {
+          profiles: this._version + '/' + this._userGroup + '/profiles',
+          categories: this._version + '/' + this._userGroup + '/categories',
+          profilePicture: this._version + '/' + this._userGroup + '/profile_picture',
+          media: this._version + '/' + this._userGroup + '/media',
+          options: {
+            members: options + '/members',
+            pending: options + '/pending'
+          }
+        };
+      },
+      
+      _checkAuthRole: function(user, auth, roles, role2, owner) {
+        if (auth) {
+          if (role2) {
+            return user && (roles[role2] || owner.owner === user.uid);
+          }
+          return user;
+        }
+        return true;
+      },
+      
+      _checkPermission: function(role, owner) {
+        this._checkAuthPole(this.user, true, this.roles, role, owner);
+      },
+
+      _setRole: function(m) {
+        var a1 = m.admin;
+        var e1 = m.editor;
+        var s1 = m.staff;
+        var m1 = m.membershipDate;
+
+        this.set('roles.admin', a1);
+        this.set('roles.editor', e1 || a1);
+        this.set('roles.staff', s1 || e1 || a1);
+        this.set('roles.member', m1 || s1 || e1 || a1);
+      },
+
+      _setPending: function(p) {
+        var newP = this._forceZero(p, false);
+        this.set('roles.pending', newP);
+      },
+      
+      _checkProfile: function(user, ref, profile) {
+        if (!profile.val()) {
+          return firebase.database().ref(ref).set({
+            displayName: user.displayName,
+            email: user.email,
+            image: user.photoURL,
+          }).then(function(){
+            window.location.assign('/profile-page/');
+          });
+        }
+      },
+      
+      _displayName: function(user) {
+        if (user) return user.displayName ? user.displayName : user.email;
+      },
+      
+      _loginSuccess: function(result) {
+        var ref = this.userPath.profiles + '/' +  result.user.uid;
+        
+        this._showMessage('Welcome ' + result.user.displayName + '!');
+      
+        if (firebase) {
+          firebase.database().ref(ref).once('value', this._checkProfile.bind(this, result.user, ref));
+        } else {
+          throw new Error('No firebase app connected');
+        }
+      },
+      
+      _logoutSuccess: function(result) {
+        this._showMessage('Goodbye!');  
+        window.location.assign('/');
+      },
+
+      login: function() {
+        if (this.$.auth && this.$.auth.signInWithPopup) {
+          this.$.auth.signInWithPopup().then(this._loginSuccess.bind(this)).catch(this._catchError.bind(this));
+        } else {
+          this._catchError(new Error('no auth component found'));
+        }
+      },
+
+      logout: function() {
+        if (this.user) {
+          if (this.$.auth && this.$.auth.signOut) {
+            this.$.auth.signOut().then(this._logoutSuccess.bind(this)).catch(this._catchError.bind(this));
+          } else {
+            this._catchError(new Error('no auth component found'));
+          }
+        } else {
+          this._showMessage('You are already logged out.');
+        }
+      },
+    };
+    Polymer.NiceUserBehavior = [
+      Polymer.NiceUtilsBehavior,
+      Polymer.RcCoreUserBehavior,
+      Polymer.NiceUserBehaviorImpl
+    ];
+  })();
+</script>

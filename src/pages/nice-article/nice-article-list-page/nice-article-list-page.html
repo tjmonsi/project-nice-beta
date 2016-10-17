@@ -1,0 +1,147 @@
+<!-- Polymer dependencies -->
+<link rel="import" href="../../../../bower_components/polymer/polymer.html">
+
+<!-- Polymer Elements dependencies -->
+<link rel="import" href="../../../../bower_components/polymerfire/firebase-query.html">
+<link rel="import" href="../../../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+
+
+<!-- Component dependencies -->
+<!-- RC-Layout dependencies -->
+<link rel="import" href="../../../components/rc-layout/rc-side-content/rc-side-content.html">
+
+<!-- Nice-Module dependencies -->
+<link rel="import" href="../../../components/nice-module/nice-hero-section/nice-hero-section.html">
+<link rel="import" href="../../../components/nice-module/nice-category-list/nice-category-list.html">
+<link rel="import" href="../../../components/nice-module/nice-summary-side-content/nice-summary-side-content.html">
+<link rel="import" href="../../../components/nice-module/nice-summary-small-article/nice-summary-small-article.html">
+
+<!-- Behvaior dependencies -->
+<link rel="import" href="../../../components/nice-module/nice-behaviors/nice-article-behavior.html">
+
+<!-- Style dependencies -->
+<link rel="import" href="nice-article-list-page-style.html">
+
+<dom-module id="nice-article-list-page">
+  <template>
+    <style is="custom-style" include="nice-article-list-page-style iron-flex iron-flex-alignment">
+      :host {
+        display: block;
+      }
+    </style>
+    
+    <firebase-query
+      path="[[articlePath.options.published]]"
+      data="{{publishedArticles}}"
+      order-by-child="published"
+      limit-to-last="[[limit]]"
+      start-at="[[_startAt]]">
+    </firebase-query>
+    
+    <firebase-query
+      path="[[articlePath.options.published]]"
+      data="{{videoArticles}}"
+      order-by-child="video"
+      limit-to-last="1">
+    </firebase-query>
+    
+    <firebase-query
+      path="[[articlePath.options.published]]"
+      data="{{photoArticles}}"
+      order-by-child="photoblog"
+      limit-to-last="1">
+    </firebase-query>
+    
+    <firebase-query
+      path="[[articlePath.options.published]]"
+      data="{{newsArticles}}"
+      order-by-child="news"
+      limit-to-last="1">
+    </firebase-query>
+    
+    <firebase-query
+      path="[[articlePath.options.published]]"
+      data="{{pressArticles}}"
+      order-by-child="press"
+      limit-to-last="1">
+    </firebase-query>
+    
+    <firebase-query
+      path="[[articlePath.options.published]]"
+      data="{{trendingArticles}}"
+      order-by-child="views"
+      limit-to-last="10">
+    </firebase-query>
+    
+    <rc-side-content class="nice-article-list">
+      <div main-content>
+        <div class="horizontal layout wrap">
+          <div class="flex article-list-section">
+            <h1>Video</h1>
+            <nice-summary-small-article 
+              article-id="[[_returnArrayElementAttribute(videoArticles, 0, '$key', videoArticles.splices)]]"></nice-summary-small-article>
+          </div>
+          <div class="flex article-list-section">
+            <h1>Photoblog</h1>
+            <nice-summary-small-article 
+              article-id="[[_returnArrayElementAttribute(photoArticles, 0, '$key', photoArticles.splices)]]"></nice-summary-small-article>
+          </div>
+        </div>
+        
+        <div class="horizontal layout wrap">
+          <div class="flex article-list-section">
+            <h1>News</h1>
+            <nice-summary-small-article 
+              article-id="[[_returnArrayElementAttribute(newsArticles, 0, '$key', newsArticles.splices)]]"></nice-summary-small-article>
+          </div>
+          <div class="flex article-list-section">
+            <h1>Press</h1>
+            <nice-summary-small-article 
+              article-id="[[_returnArrayElementAttribute(pressArticles, 0, '$key', pressArticles.splices)]]"></nice-summary-small-article>
+          </div>
+        </div>
+        
+        <!-- LIST HERE -->
+        
+      </div>
+      <div side-content>
+        <div class="side-title">
+          <h1>
+            Trending
+          </h1>
+        </div>
+        <div class="side-list">
+          <template is="dom-repeat" items="[[trendingArticles]]">
+            <nice-summary-side-content article-id="[[item.$key]]"></nice-summary-side-content>
+          </template>
+        </div>
+      </div>
+    </rc-side-content>
+    
+  </template>
+  <script>
+    Polymer({
+      is: 'nice-article-list-page',
+      
+      properties: {
+        limit: {
+          type: Number,
+          value: 1
+        }
+      },
+      
+      behaviors: [
+        Polymer.NiceArticleBehavior  
+      ],
+      
+      observers: [
+        '_changeLimit(queryParams.limit)'  
+      ],
+      
+      _changeLimit(limit) {
+        this.limit = limit;
+      }
+      
+    })
+  </script>
+</dom-module>

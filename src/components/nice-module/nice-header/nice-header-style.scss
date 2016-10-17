@@ -1,1 +1,32 @@
 // nice-header-style
+
+@import '../../../styles/variables';
+@import '../../../styles/block';
+@import '../../../styles/mixins';
+
+app-header {
+  @apply(--layout-fixed-top);
+  background-color: $light;
+  color: $gray-dark;
+  
+  app-toolbar {
+    height: $navigation-header-height;
+    
+    span[main-title] {
+      margin-left: $navigation-header-margin-left;
+      
+      @include smalldesktop {
+        margin-left: 10px;
+      }
+      
+      @include phone {
+        margin-left: 10px;
+      }
+      
+      @include tablet {
+        margin-left: 10px;
+      }
+    }
+  }  
+}
+

@@ -2,27 +2,74 @@
 <link rel="import" href="../../../../bower_components/polymer/polymer.html">
 
 <!-- Polymer Elements dependencies -->
-
+<link rel="import" href="../../../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../../../bower_components/app-layout/app-header/app-header.html">
+<link rel="import" href="../../../../bower_components/app-layout/app-scroll-effects/effects/waterfall.html">
+<link rel="import" href="../../../../bower_components/app-layout/app-toolbar/app-toolbar.html">
+<link rel="import" href="../../../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../../../bower_components/iron-icons/iron-icons.html">
 
 <!-- Component dependencies -->
+<!-- NICE Module Component dependencies -->
+<link rel="import" href="../nice-navigation/nice-navigation.html">
+<link rel="import" href="../nice-auth/nice-auth.html">
+
+<!-- Behvaior dependencies -->
+<link rel="import" href="../nice-behaviors/nice-user-behavior.html">
 
 <!-- Style dependencies -->
 <link rel="import" href="nice-header-style.html">
 
 <dom-module id="nice-header">
-  <template strip-whitespace>
+  <template>
     <style is="custom-style" include="nice-header-style">
       :host {
         display: block;
       }
     </style>
     
+    <app-header>
+      <app-toolbar>
+        <paper-icon-button 
+          id="toggle-drawer" 
+          class="rc--hide-small-desktop rc--hide-large-screen" 
+          icon="menu" 
+          on-tap="_toggleDrawer"></paper-icon-button>
+
+        <span main-title>
+          <img src="/images/assets/nice-logo.png" >  
+        </span>
+        
+        <nice-navigation
+          class="rc--hide-phone rc--hide-tablet"
+          navigation-list="[[navigationList]]"
+          user="{{user}}"
+          roles="{{roles}}"></nice-navigation>
+          
+        <nice-auth class="rc--hide-phone" user="{{user}}" roles="{{roles}}"></nice-auth>
+    
+      </app-toolbar>
+    </app-header>
     
     
   </template>
   <script>
     Polymer({
       is: 'nice-header',
+      
+      properties: {
+        navigationList: {
+          type: Array,
+        }
+      },
+      
+      behaviors: [
+        Polymer.NiceUserBehavior  
+      ],
+      
+      _toggleDrawer: function() {
+        this.fire('toggle-drawer', {});
+      }
     })
   </script>
 </dom-module>

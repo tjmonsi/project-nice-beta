@@ -2,10 +2,26 @@
 <dom-module id="rc-carousel-style">
 <template>
 <style>
-.hello {
-  text-align: center; }
-  .hello .world {
-    color: blue; }
+:host {
+  display: block;
+  position: relative;
+  overflow-y: hidden; }
+
+.carousel-buttons {
+  position: absolute;
+  bottom: 10px;
+  width: 100%; }
+  .carousel-buttons .carousel-button {
+    cursor: pointer;
+    width: 17px;
+    height: 17px;
+    border-radius: 50%;
+    border: 0px;
+    margin-right: 10px;
+    margin-left: 10px;
+    background-color: #373a3c; }
+    .carousel-buttons .carousel-button.iron-selected {
+      background-color: #818a91; }
 
 </style>
 </template>

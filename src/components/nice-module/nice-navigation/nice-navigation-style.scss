@@ -1,0 +1,24 @@
+// nice-navigation-style
+
+@import '../../../styles/variables';
+@import '../../../styles/block';
+@import '../../../styles/mixins';
+
+.nice-navigation-item {
+  
+}
+
+.nice-navigation-header {
+  .nice-navigation-item {
+    color: $gray-dark;
+    text-decoration: none;
+    margin-left: 25px;
+    margin-right: 25px;
+    
+    @include smalldesktop {
+      font-size: 0.7em;
+      margin-left: 10px;
+      margin-right: 10px;
+    }
+  }
+}

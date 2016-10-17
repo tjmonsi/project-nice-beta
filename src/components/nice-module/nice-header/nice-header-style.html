@@ -2,6 +2,39 @@
 <dom-module id="nice-header-style">
 <template>
 <style>
+@media (max-width: 479px) {
+  .rc--hide-phone {
+    display: none !important; } }
+
+@media (min-width: 480px) and (max-width: 839px) {
+  .rc--hide-tablet {
+    display: none !important; } }
+
+@media (min-width: 840px) and (max-width: 1199px) {
+  .rc--hide-small-desktop {
+    display: none !important; } }
+
+@media (min-width: 1199px) {
+  .rc--hide-large-screen {
+    display: none !important; } }
+
+app-header {
+  @apply (--layout-fixed-top);
+  background-color: #ffffff;
+  color: #373a3c; }
+  app-header app-toolbar {
+    height: 100px; }
+    app-header app-toolbar span[main-title] {
+      margin-left: 80px; }
+      @media (min-width: 840px) and (max-width: 1199px) {
+        app-header app-toolbar span[main-title] {
+          margin-left: 10px; } }
+      @media (max-width: 479px) {
+        app-header app-toolbar span[main-title] {
+          margin-left: 10px; } }
+      @media (min-width: 480px) and (max-width: 839px) {
+        app-header app-toolbar span[main-title] {
+          margin-left: 10px; } }
 
 </style>
 </template>

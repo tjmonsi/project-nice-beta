@@ -1,0 +1,89 @@
+<!-- Polymer dependencies -->
+<link rel="import" href="../../../../bower_components/polymer/polymer.html">
+
+<!-- Polymer Elements dependencies -->
+
+<!-- Component dependencies -->
+
+<!-- Behvaior dependencies -->
+<link rel="import" href="../nice-behaviors/nice-user-behavior.html">
+
+<!-- Style dependencies -->
+<link rel="import" href="nice-navigation-style.html">
+
+<dom-module id="nice-navigation">
+  <template>
+    <style is="custom-style" include="nice-navigation-style">
+      :host {
+        display: block;
+      }
+    </style>
+    
+    <template is="dom-if" if="[[!drawer]]">
+      <div class="nice-navigation-header rc--hide-phone">
+        <iron-selector class="horizontal layout" attr-for-selected="page" selected="[[page]]">
+          <template is="dom-repeat" items="[[navigationList]]">
+            <template is="dom-if" if="[[_checkAuthRole(user, item.auth, roles, item.role)]]">
+              <a
+                page$="[[item.page]]"
+                href$="[[item.url]]" 
+                class="nice-navigation-item"
+                >
+                [[item.label]]
+              </a>  
+            </template>
+            
+          </template>
+        </iron-selector>  
+      </div>
+    </template>
+    
+    <template is="dom-if" if="[[drawer]]">
+      <div class="nice-navigation-drawer">
+        <paper-listbox class="nice-navigation-drawer-container" selected="[[page]]">
+          <template is="dom-repeat" items="[[navigationList]]">
+            <a 
+              href$="[[item.url]]" 
+              class="nice-navigation-item"
+              >
+              <paper-item page$="[[item.page]]" on-tap="_toggleDrawer">
+                [[item.label]]
+              </paper-item>
+            </a>
+          </template>
+        </paper-listbox>
+      </div>
+      
+    </template>
+    
+    
+  </template>
+  <script>
+    Polymer({
+      is: 'nice-navigation',
+      
+      properties: {
+        drawer: {
+          type: Boolean,
+          value: false
+        },
+        navigationList: {
+          type: Array,
+          value: function() { return []; }
+        },
+        page: {
+          type: String,
+          reflectToAttribute: true
+        },
+      },
+      
+      behaviors: [
+        Polymer.NiceUserBehavior  
+      ],
+      
+      _toggleDrawer: function() {
+        this.fire('toggle-drawer', {});
+      }
+    })
+  </script>
+</dom-module>

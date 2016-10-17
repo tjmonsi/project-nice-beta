@@ -1,0 +1,29 @@
+@import 'mixins';
+
+////////// Phone //////////
+@include phone {
+  .rc--hide-phone {
+    display: none !important;
+  }
+}
+
+////////// Tablet //////////
+@include tablet {
+  .rc--hide-tablet {
+    display: none !important;
+  }
+}
+
+////////// Small Desktop //////////
+@include smalldesktop {
+  .rc--hide-small-desktop {
+    display: none !important;
+  }
+}
+
+////////// Large Screen //////////
+@include largescreen {
+  .rc--hide-large-screen {
+    display: none !important;
+  }
+}

@@ -1,0 +1,15 @@
+// nice-article-view-page-style
+@import '../../../styles/variables';
+
+:host {
+  margin: 20px;
+  margin-top: $navigation-header-height;
+}
+
+nice-summary-small-article {
+  margin: 5px;
+}
+
+.side-list {
+  margin-left: 10px;
+}

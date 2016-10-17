@@ -1,0 +1,84 @@
+<link rel="import" href="../../../../bower_components/polymer/polymer.html">
+<script>
+  (function(){
+    'use strict';
+
+    /** @polymerBehavior Polymer.NiceUtilsBehavior */
+    Polymer.NiceUtilsBehavior = {
+
+      properties: {
+        version: {
+          type: String,
+          readOnly: true,
+          value: function() { return this._version; }
+        }
+      },
+
+      get _version() {
+        return 'v3';
+      },
+
+      get _todayUTC() {
+        return firebase ? firebase.database.ServerValue.TIMESTAMP : Date.now();
+      },
+
+      _forceZero: function(obj, zeroValue) {
+        if (zeroValue === null || zeroValue === undefined) zeroValue = false;
+        return typeof obj === 'object' && this._isEmpty(obj) ? zeroValue : obj;
+      },
+
+      _isEmpty: function(obj) {
+        for(var prop in obj) {
+          if(obj.hasOwnProperty(prop))
+            return false;
+        }
+
+        return JSON.stringify(obj) === JSON.stringify({});
+      },
+      
+      _trimText: function(text, length) {
+        var l = length ? length : 35;
+        if (typeof text === 'string') {
+          return text.length >= l ? text.substring(0, l).trim() + '...' : text;  
+        }
+      },
+
+      renderDate: function(d) {
+        var date = d;
+        if (typeof d === 'object' && d.value) {
+          date = d.value;
+        }
+        var nd = new Date(date);
+        return nd.toLocaleDateString() + ' - ' + nd.toLocaleTimeString();
+      },
+      
+      _returnArrayElement: function(array, index) {
+        return array ? array[index] : null;
+      },
+      
+      _returnArrayElementAttribute: function(array, index, key) {
+        return array[index] ? array[index][key] : null;
+      },
+      
+      _showMessage: function(message, err) {
+        if (this.$$('#toaster')) {
+          this.$$('#toaster').show(message);
+        } else if (!err) {
+          console.log(message);
+        }
+        
+        if (err) {
+          if (console.error) {
+            console.error(message);
+          } else {
+            console.log(message);
+          }
+        } 
+      },
+
+      _catchError: function(error) {
+        this._showMessage('Error: ' + error.detail && error.detail.message ? error.detail.message : error.message, true);
+      },
+    };
+  })();
+</script>

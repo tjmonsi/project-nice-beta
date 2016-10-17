@@ -1,0 +1,56 @@
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
+<dom-module id="nice-home-page-style">
+<template>
+<style>
+@media (max-width: 479px) {
+  .rc--hide-phone {
+    display: none !important; } }
+
+@media (min-width: 480px) and (max-width: 839px) {
+  .rc--hide-tablet {
+    display: none !important; } }
+
+@media (min-width: 840px) and (max-width: 1199px) {
+  .rc--hide-small-desktop {
+    display: none !important; } }
+
+@media (min-width: 1199px) {
+  .rc--hide-large-screen {
+    display: none !important; } }
+
+nice-category-list {
+  margin: 20px; }
+
+rc-side-content.home-video-features-weather {
+  background-color: #82bce0; }
+  rc-side-content.home-video-features-weather div[main-content] {
+    margin: 20px;
+    margin-right: 10px;
+    background-color: #ffffff;
+    min-width: 250px; }
+    rc-side-content.home-video-features-weather div[main-content] .title {
+      padding: 10px;
+      margin-bottom: 0px; }
+    @media (max-width: 479px) {
+      rc-side-content.home-video-features-weather div[main-content] {
+        margin-bottom: 10px;
+        margin-right: 20px; } }
+  rc-side-content.home-video-features-weather div[side-content] {
+    margin: 20px;
+    margin-left: 10px;
+    background-color: #ffffff;
+    min-width: 250px;
+    height: calc(100% - 40px); }
+    @media (max-width: 479px) {
+      rc-side-content.home-video-features-weather div[side-content] {
+        margin-top: 10px;
+        margin-left: 20px;
+        height: inherit; } }
+
+.article-list-section {
+  margin: 10px;
+  min-width: 300px; }
+
+</style>
+</template>
+</dom-module>
