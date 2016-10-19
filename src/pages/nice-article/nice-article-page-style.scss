@@ -1,1 +1,15 @@
 // nice-article-page-style
+
+paper-fab {
+  position: fixed;
+  bottom: 2em;
+  right: 2em;
+}
+
+paper-fab.label {
+  font-size: 20px;
+}
+
+paper-dialog {
+  width: 70%;
+}

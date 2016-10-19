@@ -15,12 +15,12 @@
 <!-- Nice-Module dependencies -->
 <link rel="import" href="../../components/nice-module/nice-hero-section/nice-hero-section.html">
 <link rel="import" href="../../components/nice-module/nice-category-list/nice-category-list.html">
-<link rel="import" href="../../components/nice-module/nice-summary-side-content/nice-summary-side-content.html">
-<link rel="import" href="../../components/nice-module/nice-summary-image-content/nice-summary-image-content.html">
-<link rel="import" href="../../components/nice-module/nice-summary-small-article/nice-summary-small-article.html">
+<link rel="import" href="../../components/nice-article/nice-summary-side-content/nice-summary-side-content.html">
+<link rel="import" href="../../components/nice-article/nice-summary-image-content/nice-summary-image-content.html">
+<link rel="import" href="../../components/nice-article/nice-summary-small-article/nice-summary-small-article.html">
 
 <!-- Behvaior dependencies -->
-<link rel="import" href="../../components/nice-module/nice-behaviors/nice-article-behavior.html">
+<link rel="import" href="../../components/nice-article/nice-article-behaviors/nice-article-behavior.html">
 
 <!-- Style dependencies -->
 <link rel="import" href="nice-home-page-style.html">
@@ -36,41 +36,40 @@
     <firebase-query
       path="[[articlePath.options.published]]"
       data="{{frontArticles}}"
-      order-by-child="front"
-      limit-to-last="5"
-      start-at="[[_startAt]]">
+      order-by-child="frontPublished"
+      limit-to-last="5">
     </firebase-query>
     
     <firebase-query
       path="[[articlePath.options.published]]"
       data="{{videoArticles}}"
-      order-by-child="video"
+      order-by-child="videoPublished"
       limit-to-last="4">
     </firebase-query>
     
     <firebase-query
       path="[[articlePath.options.published]]"
       data="{{peopleArticles}}"
-      order-by-child="people"
+      order-by-child="peoplePublished"
       limit-to-last="4">
     </firebase-query>
     
     <firebase-query
       path="[[articlePath.options.published]]"
       data="{{sapArticles}}"
-      order-by-child="sap"
+      order-by-child="sapPublished"
       limit-to-last="4">
     </firebase-query>
     
     <firebase-query
       path="[[articlePath.options.published]]"
       data="{{pressArticles}}"
-      order-by-child="press"
+      order-by-child="pressPublished"
       limit-to-last="4">
     </firebase-query>
     
-    <rc-carousel height="100vh" carousel-interval="10000">
-      <template is="dom-repeat" items="[[frontArticles]]">
+    <rc-carousel height="75vh" carousel-interval="10000">
+      <template is="dom-repeat" items="[[frontArticlesSorted]]">
         <nice-hero-section
           article-id="[[item.$key]]"
           data-index$="[[index]]"></nice-hero-section>
@@ -87,10 +86,10 @@
         <rc-side-content>
           <div main-content class="home-video-features-highlight">
             <nice-summary-image-content 
-              article-id="[[_returnArrayElementAttribute(videoArticles, 0, '$key', videoArticles.splices)]]"></nice-summary-image-content>
+              article-id="[[_returnArrayElementAttribute(videoArticlesSorted, 0, '$key', videoArticles.splices)]]"></nice-summary-image-content>
           </div>
           <div side-content class="home-video-features-list">
-            <template is="dom-repeat" items="[[videoArticles]]">
+            <template is="dom-repeat" items="[[videoArticlesSorted]]">
               <template is="dom-if" if="[[index]]">
                 <nice-summary-side-content article-id="[[item.$key]]"></nice-summary-side-content>  
               </template>
@@ -109,8 +108,8 @@
       <div class="flex-2 article-list-section">
         <h1>People</h1>
         <nice-summary-small-article 
-          article-id="[[_returnArrayElementAttribute(peopleArticles, 0, '$key', peopleArticles.splices)]]"></nice-summary-small-article>
-        <template is="dom-repeat" items="[[peopleArticles]]">
+          article-id="[[_returnArrayElementAttribute(peopleArticlesSorted, 0, '$key', peopleArticles.splices)]]"></nice-summary-small-article>
+        <template is="dom-repeat" items="[[peopleArticlesSorted]]">
           <template is="dom-if" if="[[index]]">
             <nice-summary-side-content article-id="[[item.$key]]"></nice-summary-side-content>  
           </template>
@@ -120,8 +119,8 @@
       <div class="flex-2 article-list-section">
         <h1>SAP</h1>
         <nice-summary-small-article 
-          article-id="[[_returnArrayElementAttribute(sapArticles, 0, '$key', sapArticles.splices)]]"></nice-summary-small-article>
-        <template is="dom-repeat" items="[[sapArticles]]">
+          article-id="[[_returnArrayElementAttribute(sapArticlesSorted, 0, '$key', sapArticles.splices)]]"></nice-summary-small-article>
+        <template is="dom-repeat" items="[[sapArticlesSorted]]">
           <template is="dom-if" if="[[index]]">
             <nice-summary-side-content article-id="[[item.$key]]"></nice-summary-side-content>  
           </template>
@@ -131,8 +130,8 @@
       <div class="flex-2 article-list-section">
         <h1>Press</h1>
         <nice-summary-small-article 
-          article-id="[[_returnArrayElementAttribute(pressArticles, 0, '$key', pressArticles.splices)]]"></nice-summary-small-article>
-        <template is="dom-repeat" items="[[pressArticles]]">
+          article-id="[[_returnArrayElementAttribute(pressArticlesSorted, 0, '$key', pressArticles.splices)]]"></nice-summary-small-article>
+        <template is="dom-repeat" items="[[pressArticlesSorted]]">
           <template is="dom-if" if="[[index]]">
             <nice-summary-side-content article-id="[[item.$key]]"></nice-summary-side-content>  
           </template>
@@ -168,6 +167,7 @@
       behaviors: [
         Polymer.NiceArticleBehavior  
       ],
+      
       
       
       

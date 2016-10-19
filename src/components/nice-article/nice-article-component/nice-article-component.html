@@ -1,0 +1,221 @@
+<!-- Polymer dependencies -->
+<link rel="import" href="../../../../bower_components/polymer/polymer.html">
+
+<!-- Polymer Elements dependencies -->
+<link rel="import" href="../../../../bower_components/polymerfire/firebase-document.html">
+<link rel="import" href="../../../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="../../../../bower_components/marked-element/marked-element.html">
+<link rel="import" href="../../../../bower_components/paper-material/paper-material.html"> 
+<link rel="import" href="../../../../bower_components/paper-icon-button/paper-icon-button.html"> 
+<link rel="import" href="../../../../bower_components/iron-image/iron-image.html">
+<link rel="import" href="../../../../bower_components/paper-spinner/paper-spinner.html">
+<link rel="import" href="../../../../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../../../bower_components/google-youtube/google-youtube.html">
+<link rel="import" href="../../../../bower_components/iron-icons/editor-icons.html">
+<link rel="import" href="../../../../bower_components/iron-icons/av-icons.html">
+<link rel="import" href="../../../../bower_components/neon-animation/animations/scale-up-animation.html">
+<link rel="import" href="../../../../bower_components/neon-animation/animations/fade-out-animation.html">
+
+<!-- Component dependencies -->
+<!-- NICE-Module depenencies -->
+<link rel="import" href="../../nice-module/nice-hero-section/nice-hero-section.html">
+
+<!-- Behvaior dependencies -->
+<link rel="import" href="../../rc-core/rc-core-utils-behavior.html">
+<link rel="import" href="../nice-article-behaviors/nice-article-behavior.html">
+<link rel="import" href="../../nice-module/nice-behaviors/nice-category-behavior.html">
+<link rel="import" href="../../nice-user/nice-user-behavior/nice-user-behavior.html">
+
+<!-- Style dependencies -->
+<link rel="import" href="nice-article-component-style.html">
+
+<dom-module id="nice-article-component">
+  <template>
+    <style is="custom-style" include="nice-article-component-style iron-flex iron-flex-alignment iron-flex-factors">
+      :host {
+        display: block;
+      }
+    </style>
+    
+    <firebase-document
+        data="{{article}}"
+        path$="[[articlePath.articles]]/[[articleId]]"></firebase-document>
+    <firebase-document
+        path$="[[articlePath.owners]]/[[articleId]]"
+        data="{{owner}}"></firebase-document>
+    <firebase-document
+        path$="[[articlePath.photoblog]]/[[articleId]]"
+        data="{{photoblogData}}"></firebase-document>
+    <firebase-document
+        path$="[[categoryPath.categories]]"
+        data="{{categories}}"></firebase-document>
+        
+    <!-- ADD CHECK ON USER ROLE HERE -->
+    <template is="dom-if" if="{{user}}">
+      <firebase-document
+        path="[[userPath.options.members]]/[[user.uid]]"
+        data="{{memberRole}}">
+      </firebase-document>
+    </template>
+    
+    <template is="dom-if" if="{{_forceZero(article)}}">
+      <nice-hero-section
+          article-page
+          article-id="[[articleId]]"
+          height="75vh"></nice-hero-section>
+      
+      <div class="horizontal layout">
+        <div class="flex"></div>
+        <div class="flex-3 body-container">
+          <div class="by-line">
+            Last Edited at: {{renderDate(article.date_published)}}
+          </div>
+          <div class="horizontal layout wrap center">
+            <div class="category-title">
+              Categories:
+            </div>
+            <template is="dom-repeat" items="{{categoryArray}}">
+              <template is="dom-if" if="_categoryIcon(categories, item.$key)">
+                <div style="position: relative">
+                  <iron-icon style="margin-left: 10px" id="{{item.$key}}" src="{{_categoryIcon(categories, item.$key)}}"></iron-icon>
+                  <paper-tooltip for="{{item.$key}}">{{_categoryName(categories, item.$key)}}</paper-tooltip>
+                </div>
+              </template>
+            </template>
+          </div>
+          <div class="buttons">
+            <a href="https://www.facebook.com/sharer.php?u=[[_thisUrl()]]" target="_blank">
+              <paper-icon-button src="https://firebasestorage.googleapis.com/v0/b/project-nice-polymer.appspot.com/o/icons%2Ffacebook_circle_color-128.png?alt=media&token=e3b0bb20-d29b-4da3-b6de-80a17f561797"></paper-icon-button>
+            </a>
+            <a href="https://twitter.com/share?text=[[_textToUrl(article.title)]]&url=[[_thisUrl()]]" target="_blank">
+              <paper-icon-button src="https://firebasestorage.googleapis.com/v0/b/project-nice-polymer.appspot.com/o/icons%2Ftwitter_circle_color-256.png?alt=media&token=0a32bc85-8464-4b97-811b-ec1c3aa750bf"></paper-icon-button>
+            </a>
+          </div>
+          
+          <marked-element markdown="{{article.body}}">
+            <div class="markdown-html"></div>
+          </marked-element>
+          <div class="horizontal layout wrap">
+            <template is="dom-repeat" items="{{photoblog}}">
+              <paper-material class="photoblog-item flex">
+                <iron-image
+                  src="{{item.downloadURL}}"
+                  data-caption$="{{item.caption}}"
+                  sizing="cover"
+                  preload
+                  fade
+                  on-tap="_openPhotoBlog"
+                ></iron-image>
+              </paper-material>
+  
+            </template>
+          </div>
+          
+          <div class="buttons">
+            <a href="/article/">
+              <paper-button>Go back</paper-button>
+            </a>
+            <template is="dom-if" if="{{_checkPermission('editor', owner, user, roles.member)}}">
+              
+              <template is="dom-if" if="[[!articleBeingEdited]]">
+                <a href="/article/edit/[[articleId]]">
+                  <paper-icon-button icon="editor:mode-edit"></paper-icon-button>
+                </a>
+              </template>
+              <template is="dom-if" if="[[articleBeingEdited]]">
+                <a href="/article/view/[[articleId]]">
+                  <paper-button>Close Editor</paper-button>
+                </a>
+              </template>
+              
+              <paper-icon-button on-tap="_openDeleteArticle" icon="icons:delete"></paper-icon-button>
+            </template>
+          </div>
+  
+        </div>
+        <div class="flex"></div>
+      </div>
+    </template>
+    
+    <template is="dom-if" if="{{!_forceZero(article)}}">
+      <div class="horizontal layout">
+        <div class="flex"></div>
+        <div class="center flex" style="margin-top: 200px; text-align: center">
+          <paper-spinner alt="Loading article" active></paper-spinner>
+        </div>
+        <div class="flex"></div>
+      </div>
+    </template>
+    
+    <paper-dialog
+      id="photoblog-dialog"
+      entry-animation="scale-up-animation"
+      exit-animation="fade-out-animation">
+
+      <div class="horizontal layout">
+        <div class="flex">
+          <a id="photoblog-dialog-image-full" target="_blank">
+            <iron-image
+              id="photoblog-dialog-image"
+              preload
+              fade
+            ></iron-image>
+          </a>
+          <div class="caption">
+            <marked-element id="photoblog-dialog-caption">
+              <div class="markdown-html"></div>
+            </marked-element>
+          </div>
+
+        </div>
+      </div>
+    </paper-dialog>
+
+    <paper-dialog
+      id="video-dialog"
+      entry-animation="scale-up-animation"
+      exit-animation="fade-out-animation"
+      on-iron-overlay-closed="_videoDialogClosed">
+      <google-youtube
+        width="100%"
+        id="video-content"
+        on-google-youtube-ready="videoReady"
+        >
+      </google-youtube>
+    </paper-dialog>
+
+    <paper-dialog
+      id="delete-dialog"
+      entry-animation="scale-up-animation"
+      exit-animation="fade-out-animation">
+
+      <div class="delete-text">
+        Are you sure you want to delete this article?
+      </div>
+      <div class="horizontal layout">
+        <paper-button on-tap="_cancelDelete">Cancel</paper-button>
+        <paper-button on-tap="_deleteArticle">Delete</paper-button>
+      </div>
+    </paper-dialog>
+
+    <paper-toast id="toaster"></paper-toast>
+    
+  </template>
+  <script>
+    Polymer({
+      is: 'nice-article-component',
+      
+      observers: [
+        '_checkPhotoBlogData(photoblogData)',
+        '_checkCategories(article.categories)'
+      ],
+      
+      behaviors: [
+        Polymer.NiceArticleBehavior,
+        Polymer.NiceCategoryBehavior,
+        Polymer.NiceUserBehavior
+      ],
+      
+    })
+  </script>
+</dom-module>

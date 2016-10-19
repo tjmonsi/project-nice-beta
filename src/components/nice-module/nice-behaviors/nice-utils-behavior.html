@@ -79,6 +79,14 @@
       _catchError: function(error) {
         this._showMessage('Error: ' + error.detail && error.detail.message ? error.detail.message : error.message, true);
       },
+      
+      _textToUrl: function(text) {
+        return encodeURI(text);
+      },
+
+      _thisUrl: function() {
+        return window.location.href;
+      },
     };
   })();
 </script>

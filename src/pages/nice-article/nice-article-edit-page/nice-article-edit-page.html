@@ -2,34 +2,60 @@
 <link rel="import" href="../../../../bower_components/polymer/polymer.html">
 
 <!-- Polymer Elements dependencies -->
-
+<link rel="import" href="../../../../bower_components/app-route/app-route.html">
+<link rel="import" href="../../../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
 
 <!-- Component dependencies -->
+<link rel="import" href="../../../components/nice-article/nice-article-component/nice-article-component.html">
+<link rel="import" href="../../../components/nice-article/nice-article-form/nice-article-form.html">
 
 <!-- Style dependencies -->
 <link rel="import" href="nice-article-edit-page-style.html">
 
 <dom-module id="nice-article-edit-page">
   <template>
-    <style is="custom-style" include="nice-article-edit-page-style">
+    <style is="custom-style" include="nice-article-edit-page-style iron-flex iron-flex-alignment">
       :host {
         display: block;
       }
     </style>
     
-    <div style="background-color: green; height: 2000px">
-      Something to think about<br/>
-      Lorem ipsum<br/>
-      geageasga<br/><br/>
-      gesahsea<br/>
-      hsae<br/>
-      hsaehdsahsadhsdahsda<br/>
+    <app-route
+      route="{{route}}"
+      pattern="/:page"
+      data="{{routeData}}"></app-route>
+  
+    <div class="horizontal layout wrap">
+      <nice-article-form class="flex" article-id="[[articleId]]" user="[[user]]"></nice-article-form>
+      <nice-article-component class="flex" article-id="[[articleId]]" user="[[user]]" articleBeingEdited></nice-article-component>
     </div>
+    
     
   </template>
   <script>
     Polymer({
       is: 'nice-article-edit-page',
+      
+      properties: {
+        route: {
+          type: Object
+        },
+        routeData: {
+          type: Object
+        },
+        articleId: {
+          type: String
+        }
+      },
+      
+      observers: [
+        '_routeDataChanged(routeData.page)'  
+      ],
+      
+      _routeDataChanged: function(page) {
+        console.log(page)
+        this.articleId = page;
+      }
     })
   </script>
 </dom-module>

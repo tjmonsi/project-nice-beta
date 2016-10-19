@@ -9,7 +9,7 @@
 <!-- Component dependencies -->
 
 <!-- Behvaior dependencies -->
-<link rel="import" href="../nice-behaviors/nice-article-behavior.html">
+<link rel="import" href="../../nice-article/nice-article-behaviors/nice-article-behavior.html">
 <link rel="import" href="../../rc-core/rc-core-utils-behavior.html">
 
 <!-- Style dependencies -->
@@ -69,11 +69,14 @@
               <p>
                 [[articleSubTitle]]
               </p>
-              <a href="/article/view/[[articleId]]">
-                <paper-button>
-                  Read More
-                </paper-button>  
-              </a>
+              <template is="dom-if" if="[[!articlePage]]">
+                <a href="/article/view/[[articleId]]">
+                  <paper-button>
+                    Read More
+                  </paper-button>  
+                </a>  
+              </template>
+              
             </div>
             <div class="flex"></div>
           </div>
@@ -106,6 +109,11 @@
           type: String,
           value: '100vh',
           observer: '_resize'
+        },
+        articlePage: {
+          type: Boolean,
+          value: false,
+          observer: 'check'
         }
       },
       

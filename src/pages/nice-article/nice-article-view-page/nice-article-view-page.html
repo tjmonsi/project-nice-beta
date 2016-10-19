@@ -2,9 +2,10 @@
 <link rel="import" href="../../../../bower_components/polymer/polymer.html">
 
 <!-- Polymer Elements dependencies -->
-
+<link rel="import" href="../../../../bower_components/app-route/app-route.html">
 
 <!-- Component dependencies -->
+<link rel="import" href="../../../components/nice-article/nice-article-component/nice-article-component.html">
 
 <!-- Style dependencies -->
 <link rel="import" href="nice-article-view-page-style.html">
@@ -16,20 +17,38 @@
         display: block;
       }
     </style>
-    
-    <div style="background-color: red; height: 2000px">
-      Something to think about<br/>
-      Lorem ipsum<br/>
-      geageasga<br/><br/>
-      gesahsea<br/>
-      hsae<br/>
-      hsaehdsahsadhsdahsda<br/>
-    </div>
+  
+    <app-route
+      route="{{route}}"
+      pattern="/:page"
+      data="{{routeData}}"></app-route>
+  
+    <nice-article-component article-id="[[articleId]]" user="[[user]]"></nice-article-component>
     
   </template>
   <script>
     Polymer({
       is: 'nice-article-view-page',
+      
+      properties: {
+        route: {
+          type: Object
+        },
+        routeData: {
+          type: Object
+        },
+        articleId: {
+          type: String
+        }
+      },
+      
+      observers: [
+        '_routeDataChanged(routeData.page)'  
+      ],
+      
+      _routeDataChanged: function(page) {
+        this.articleId = page;
+      }
     })
   </script>
 </dom-module>

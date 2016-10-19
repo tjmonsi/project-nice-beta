@@ -11,13 +11,14 @@
 
 <!-- Behvaior dependencies -->
 <link rel="import" href="../../rc-core/rc-core-utils-behavior.html">
+<link rel="import" href="../nice-article-behaviors/nice-article-behavior.html">
 
 <!-- Style dependencies -->
-<link rel="import" href="nice-summary-small-article-style.html">
+<link rel="import" href="nice-summary-image-content-style.html">
 
-<dom-module id="nice-summary-small-article">
+<dom-module id="nice-summary-image-content">
   <template>
-    <style is="custom-style" include="nice-summary-small-article-style">
+    <style is="custom-style" include="nice-summary-image-content-style">
       :host {
         display: block;
       }
@@ -35,34 +36,24 @@
       path="[[articlePath.articles]]/[[articleId]]/header_image"
       data="{{articleImage}}">
     </firebase-document>
-    <firebase-document
-      path="[[articlePath.articles]]/[[articleId]]/body"
-      data="{{articleBody}}">
-    </firebase-document>
     
-    <a href="/article/view/[[articleId]]" class="header-image-anchor">
-      <iron-image class="header-image" src$="[[articleImage]]" sizing="cover" fade preload></iron-image>
-    </a>
-    <div class="content">
-      <a href="/article/view/[[articleId]]" class="article-title">
+    <a href="/article/view/[[articleId]]">
+      <iron-image class="background" src$="[[articleImage]]" sizing="cover" fade preload></iron-image>
+      <div class="frontground">
         <h2>
           [[_trimText(articleTitle)]]
-        </h2>  
-      </a>
-      <p class="by-line">
-        Last Published: [[articleDatePublished]]
-      </p>
-      <p class="body">
-        [[_trimText(articleBody, 200)]]
-      </p>
-    </div>
-    
+        </h2>
+        <p>
+          Last Published: [[articleDatePublished]]
+        </p>
+      </div>
+    </a>
     
     
   </template>
   <script>
     Polymer({
-      is: 'nice-summary-small-article',
+      is: 'nice-summary-image-content',
       
       behaviors: [
         Polymer.NiceArticleBehavior  

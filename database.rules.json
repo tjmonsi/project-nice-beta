@@ -1,0 +1,17 @@
+{
+  "rules": {
+    ".read": true,
+    ".write": "auth != null",
+    "v2": {
+      "article_group": {
+        "options": {
+          "published": {
+            ".indexOn": [
+              "value"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

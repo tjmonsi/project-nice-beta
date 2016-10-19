@@ -16,6 +16,11 @@
         categories: {
           type: Object
         },
+        
+        categoryArray: {
+          type: Array,
+          value: function() { return []; }
+        },
 
         categoryPath: {
           type: Object,
@@ -38,6 +43,26 @@
         return {
           categories: this._version + '/' + this._categoryGroup + '/categories'
         };
+      },
+      
+      _categoryIcon: function(categories, key) {
+        if (categories[key]) {
+          return categories[key].icon
+        }
+      },
+
+      _categoryName: function(categories, key) {
+        if (categories[key]) {
+          return categories[key].name
+        }
+      },
+      
+      _checkCategories: function(categories) {
+        this.categoryArray = [];
+        // console.log(categories)
+        for (var i in categories) {
+          this.push('categoryArray', {$key: i});
+        }
       },
 
     };

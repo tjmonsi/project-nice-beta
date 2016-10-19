@@ -1,0 +1,34 @@
+<link rel="import" href="../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="nice-utils-behavior.html">
+<script>
+  (function(){
+    'use strict';
+
+    /** @polymerBehavior Polymer.FileBehavior */
+    Polymer.NiceFileBehaviorImpl = {
+
+      properties: {
+        file: {
+          type: Object
+        },
+        files: {
+          type: Object
+        }
+      },
+
+      uploadSingleFile: function(e) {
+        this.file = e.target.files[0];
+      },
+
+      uploadMultipleFiles: function(e) {
+        this.files = e.target.files;
+      }
+
+
+    };
+    Polymer.NiceFileBehavior = [
+      Polymer.NiceUtilsBehavior,
+      Polymer.NiceFileBehaviorImpl
+    ];
+  })();
+</script>

@@ -1,6 +1,7 @@
 <!-- Polymer dependencies -->
 <link rel="import" href="../bower_components/polymer/polymer.html">
 
+
 <!-- Polymer Component dependencies -->
 <link rel="import" href="../bower_components/polymerfire/firebase-app.html">
 
@@ -79,24 +80,30 @@
         <nice-article-page 
           page="article" 
           source="/src/pages/nice-article/nice-article-page.html" 
-          label="FEATURES">
+          label="FEATURES"
+          user="[[user]]">
           <rc-core-route 
             sub
             prefix="/article"
             route="{{subroute}}"
             default-page="list"
             not-found-tag="nice-not-found-page"
-            not-found-source="/src/pages/nice-not-found/nice-not-found-page.html">
+            not-found-source="/src/pages/nice-not-found/nice-not-found-page.html"
+            subroute="{{articleRoute}}">
             <nice-article-list-page 
               page="list" 
               source="/src/pages/nice-article/nice-article-list-page/nice-article-list-page.html"
               query-params="{{queryParams}}"></nice-article-list-page>
             <nice-article-view-page 
               page="view" 
-              source="/src/pages/nice-article/nice-article-view-page/nice-article-view-page.html"></nice-article-view-page>
+              source="/src/pages/nice-article/nice-article-view-page/nice-article-view-page.html"
+              route="[[articleRoute]]"
+              user="[[user]]"></nice-article-view-page>
             <nice-article-edit-page 
               page="edit" 
-              source="/src/pages/nice-article/nice-article-edit-page/nice-article-edit-page.html"></nice-article-edit-page>
+              source="/src/pages/nice-article/nice-article-edit-page/nice-article-edit-page.html"
+              route="[[articleRoute]]"
+              user="[[user]]"></nice-article-edit-page>
           </rc-core-route>
         </nice-article-page>
           
@@ -124,6 +131,9 @@
       properties: {
         navigationList: {
           type: Array,
+        },
+        queryParams: {
+          type: Object
         }
       },
       

@@ -4,6 +4,8 @@
 <!-- Polymer Elements dependencies -->
 <link rel="import" href="../../../../bower_components/polymerfire/firebase-query.html">
 <link rel="import" href="../../../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="../../../../bower_components/iron-scroll-threshold/iron-scroll-threshold.html">
+<!--<link rel="import" href="../../../../bower_components/iron-list/iron-list.html">-->
 
 
 <!-- Component dependencies -->
@@ -13,14 +15,17 @@
 <!-- Nice-Module dependencies -->
 <link rel="import" href="../../../components/nice-module/nice-hero-section/nice-hero-section.html">
 <link rel="import" href="../../../components/nice-module/nice-category-list/nice-category-list.html">
-<link rel="import" href="../../../components/nice-module/nice-summary-side-content/nice-summary-side-content.html">
-<link rel="import" href="../../../components/nice-module/nice-summary-small-article/nice-summary-small-article.html">
+<link rel="import" href="../../../components/nice-article/nice-summary-side-content/nice-summary-side-content.html">
+<link rel="import" href="../../../components/nice-article/nice-summary-small-article/nice-summary-small-article.html">
 
 <!-- Behvaior dependencies -->
-<link rel="import" href="../../../components/nice-module/nice-behaviors/nice-article-behavior.html">
+<link rel="import" href="../../../components/nice-article/nice-article-behaviors/nice-article-behavior.html">
 
 <!-- Style dependencies -->
 <link rel="import" href="nice-article-list-page-style.html">
+
+<!-- JS dependencies -->
+<script src="../../../../bower_components/underscore/underscore.js"></script>
 
 <dom-module id="nice-article-list-page">
   <template>
@@ -33,7 +38,7 @@
     <firebase-query
       path="[[articlePath.options.published]]"
       data="{{publishedArticles}}"
-      order-by-child="published"
+      order-by-child="value"
       limit-to-last="[[limit]]"
       start-at="[[_startAt]]">
     </firebase-query>
@@ -41,37 +46,38 @@
     <firebase-query
       path="[[articlePath.options.published]]"
       data="{{videoArticles}}"
-      order-by-child="video"
+      order-by-child="videoPublished"
       limit-to-last="1">
     </firebase-query>
     
     <firebase-query
       path="[[articlePath.options.published]]"
       data="{{photoArticles}}"
-      order-by-child="photoblog"
+      order-by-child="photoblogPublished"
       limit-to-last="1">
     </firebase-query>
     
     <firebase-query
       path="[[articlePath.options.published]]"
       data="{{newsArticles}}"
-      order-by-child="news"
+      order-by-child="newsPublished"
       limit-to-last="1">
     </firebase-query>
     
     <firebase-query
       path="[[articlePath.options.published]]"
       data="{{pressArticles}}"
-      order-by-child="press"
+      order-by-child="pressPublished"
       limit-to-last="1">
     </firebase-query>
     
     <firebase-query
       path="[[articlePath.options.published]]"
       data="{{trendingArticles}}"
-      order-by-child="views"
+      order-by-child="viewsPublished"
       limit-to-last="10">
     </firebase-query>
+    
     
     <rc-side-content class="nice-article-list">
       <div main-content>
@@ -79,12 +85,12 @@
           <div class="flex article-list-section">
             <h1>Video</h1>
             <nice-summary-small-article 
-              article-id="[[_returnArrayElementAttribute(videoArticles, 0, '$key', videoArticles.splices)]]"></nice-summary-small-article>
+              article-id="[[_returnArrayElementAttribute(videoArticlesSorted, 0, '$key', videoArticles.splices)]]"></nice-summary-small-article>
           </div>
           <div class="flex article-list-section">
             <h1>Photoblog</h1>
             <nice-summary-small-article 
-              article-id="[[_returnArrayElementAttribute(photoArticles, 0, '$key', photoArticles.splices)]]"></nice-summary-small-article>
+              article-id="[[_returnArrayElementAttribute(photoArticlesSorted, 0, '$key', photoArticles.splices)]]"></nice-summary-small-article>
           </div>
         </div>
         
@@ -92,17 +98,29 @@
           <div class="flex article-list-section">
             <h1>News</h1>
             <nice-summary-small-article 
-              article-id="[[_returnArrayElementAttribute(newsArticles, 0, '$key', newsArticles.splices)]]"></nice-summary-small-article>
+              article-id="[[_returnArrayElementAttribute(newsArticlesSorted, 0, '$key', newsArticles.splices)]]"></nice-summary-small-article>
           </div>
           <div class="flex article-list-section">
             <h1>Press</h1>
             <nice-summary-small-article 
-              article-id="[[_returnArrayElementAttribute(pressArticles, 0, '$key', pressArticles.splices)]]"></nice-summary-small-article>
+              article-id="[[_returnArrayElementAttribute(pressArticlesSorted, 0, '$key', pressArticles.splices)]]"></nice-summary-small-article>
           </div>
         </div>
         
         <!-- LIST HERE -->
-        
+        <h1>Articles</h1>
+        <iron-scroll-threshold on-lower-threshold="_loadMoreData" scroll-target="document"
+        lower-threshold="500">
+          <!--<iron-list scroll-target="document" items="[[items]]">-->
+          <!--  <template>-->
+              
+          <!--  </template>-->
+            
+          <!--</iron-list>-->
+          <template is="dom-repeat" items="[[items]]" >
+            <nice-summary-side-content article-id="[[item.$key]]"></nice-summary-side-content>  
+          </template>
+        </iron-scroll-threshold>
       </div>
       <div side-content>
         <div class="side-title">
@@ -118,6 +136,7 @@
       </div>
     </rc-side-content>
     
+    
   </template>
   <script>
     Polymer({
@@ -126,7 +145,11 @@
       properties: {
         limit: {
           type: Number,
-          value: 1
+          value: 5
+        },
+        items: {
+          type: Array,
+          value: function() { return []; }
         }
       },
       
@@ -135,11 +158,68 @@
       ],
       
       observers: [
-        '_changeLimit(queryParams.limit)'  
+        '_changeLimit(queryParams.limit)',
+        '_changePublished(publishedArticles.splices)'
       ],
       
-      _changeLimit(limit) {
+      ready: function() {
+        this.$$('iron-scroll-threshold').selectTarget = Polymer.dom(this);
+      },
+      
+      _changeLimit: function(limit) {
         this.limit = limit;
+      },
+      
+      _changePublished: function() {
+        // console.log(this.publishedArticles)
+        
+        // console.log(this.publishedArticles);
+        
+        for (var i in this.publishedArticles) {
+          var index = _.findIndex(this.items, function(item) {
+            // console.log(this.publishedArticles[i].$key, item.$key)
+            return this.publishedArticles[i].$key === item.$key
+          }.bind(this));
+          
+          // console.log(index);
+          
+          if (index < 0) {
+            this.push('items', this.publishedArticles[i]);
+            // console.log(this.items)
+          }
+        }
+        
+        var array = this.items.sort(this._articleSorter.bind(this, 'value'))
+        this.items = [];
+        this.items = array;
+        // for (var j in this.items) {
+        //   var index = _.findIndex(this.publishedArticles, function(item) {
+        //     return this.items[j].$key === item.$key
+        //   }.bind(this));
+          
+        //   console.log(index);
+        //   if (index < 0) {
+        //     this.splice('items', j, 1);
+        //   }
+        // }
+        
+        // console.log(this.items)
+      },
+      
+      _loadMoreData: function() {
+        // console.log('call')
+        this.$$('iron-scroll-threshold').clearTriggers();
+       
+        // if (this.publishedArticles.length <= this.limit) {
+        if (this.limit) {
+          this.limit += 5;  
+        } else {
+          this.limit = 5;
+        }
+        
+        // }
+        // console.log(this.limit)
+        
       }
       
     })

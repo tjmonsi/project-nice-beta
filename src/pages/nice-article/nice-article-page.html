@@ -2,9 +2,16 @@
 <link rel="import" href="../../../bower_components/polymer/polymer.html">
 
 <!-- Polymer Elements dependencies -->
+<link rel="import" href="../../../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../../bower_components/paper-fab/paper-fab.html">
+<link rel="import" href="../../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../../bower_components/paper-button/paper-button.html">
+<!--<link rel="import" href="../../../bower_components/polymerfire/firebase-document.html">-->
 
 
 <!-- Component dependencies -->
+<link rel="import" href="../../components/nice-article/nice-article-behaviors/nice-article-behavior.html">
+<link rel="import" href="../../components/nice-user/nice-user-behavior/nice-user-behavior.html">
 
 <!-- Style dependencies -->
 <link rel="import" href="nice-article-page-style.html">
@@ -17,12 +24,72 @@
       }
     </style>
     
+     <!--ADD CHECK ON USER ROLE HERE -->
+    <template is="dom-if" if="{{user}}">
+      <firebase-document
+        path="[[userPath.options.members]]/[[user.uid]]"
+        data="{{memberRole}}">
+      </firebase-document>
+    </template>
+    
     <content></content>
+    
+    <template is="dom-if" if="{{_checkPermission('staff', owner, user, roles.member)}}">
+      <paper-fab
+        id="create-new-fab"
+        icon="add"
+        on-tap="openCreateNewDialog"
+        disabled="[[!online]]"
+        aria-label="Add Article">
+      </paper-fab>
+
+      <paper-dialog
+        id="create-new-dialog"
+        entry-animation="scale-up-animation"
+        exit-animation="fade-out-animation">
+        <h2>New Article</h2>
+        <div>
+          <paper-input
+            id="create-new-title"
+            name="title"
+            minlength="1"
+            label="Please input Title">
+          </paper-input>
+        </div>
+        <div class="buttons">
+          <paper-button dialog-dismiss>
+            Cancel
+          </paper-button>
+          <paper-button on-tap="insertNewArticle" dialog-confirm>
+            Create New
+          </paper-button>
+        </div>
+      </paper-dialog>
+    </template>
+
+    <paper-toast id="toaster"></paper-toast>
     
   </template>
   <script>
     Polymer({
       is: 'nice-article-page',
+      
+      behaviors: [
+        Polymer.NiceUserBehavior,
+        Polymer.NiceArticleBehavior  
+      ],
+      
+      openCreateNewDialog: function() {
+        if (this.$$('#create-new-dialog')) {
+          this.$$('#create-new-dialog').open();
+        } else {
+          this.$.toaster.show('Error: No dialog box exists. Please report to us for this bug');
+        }
+      },
+      // behaviors: [
+        // Polymer.NiceUserBehavior,
+        // Polymer.NiceArticleBehavior  
+      // ],
     })
   </script>
 </dom-module>

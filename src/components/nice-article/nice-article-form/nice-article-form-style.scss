@@ -1,0 +1,19 @@
+//
+
+.file-list-item {
+  padding-top: 10px;
+}
+
+.file-list-item-name {
+  padding-left: 10px;
+  font-size: 0.7em;
+}
+
+.file-buttons {
+
+}
+
+.category-icon[active] {
+  background-color: var(--paper-green-500);
+  color: white;
+}

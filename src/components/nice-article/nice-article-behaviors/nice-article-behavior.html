@@ -1,5 +1,5 @@
 <link rel="import" href="../../../../bower_components/polymer/polymer.html">
-<link rel="import" href="./nice-utils-behavior.html">
+<link rel="import" href="../../nice-module/nice-behaviors/nice-utils-behavior.html">
 
 <script>
   (function(){
@@ -41,6 +41,16 @@
         articleBody: {
           type: String
         },
+        
+        photoblog: {
+          type: Array,
+          value: function() { return null; }
+        },
+        
+        articleBeingEdited: {
+          type: Boolean,
+          value: false
+        },
 
         articleId: {
           type: String,
@@ -76,6 +86,32 @@
             published: options + '/published'
           }
         };
+      },
+      
+      observers: [
+        '_checkPublishedArticles(publishedArticles.splices, "publishedArticles")',
+        '_checkPublishedArticles(frontArticles.splices, "frontArticles")',
+        '_checkPublishedArticles(videoArticles.splices, "videoArticles")',
+        '_checkPublishedArticles(peopleArticles.splices, "peopleArticles")',
+        '_checkPublishedArticles(sapArticles.splices, "sapArticles")',
+        '_checkPublishedArticles(pressArticles.splices, "pressArticles")',
+        '_checkPublishedArticles(photoArticles.splices, "photoArticles")',
+        '_checkPublishedArticles(newsArticles.splices, "newsArticles")',
+        '_checkPublishedArticles(trendingArticles.splices, "trendingArticles", "viewsPublished")',
+      ],
+      
+      _checkPublishedArticles: function(e, s, v) {
+        this[s+'Sorted'] = [];
+        this[s+'Sorted'] = this[s].sort(this._articleSorter.bind(this, v ? v : 'value'));;
+      },
+      
+      _checkDraftArticles: function() {
+        this.frontArticlesSorted = [];
+        this.frontArticlesSorted = this.frontArticles.sort(this._articleSorter.bind(this, 'draft'));;
+      },
+      
+      _articleSorter: function(sorter, a, b) {
+        return a[sorter] < b[sorter];
       },
       
       _createArticle: function(title) {
@@ -119,7 +155,7 @@
           updates[this._articlePath.articles + '/'+ this.articleId] = null;
           updates[this._articlePath.owners + '/'+ this.articleId] = null;
           updates[this._articlePath.options.published + '/'+ this.articleId] = null;
-          updates[this._articlePath.options.draft + '/'+ this.articleId] = null;
+          
           
           return firebase.database().ref(this._articlePath.articles + '/'+ this.articleId + '/tagwords').once('value', function(snapshot) {
             var arr = snapshot.val();
@@ -148,7 +184,58 @@
       _checkVideoString: function(video) {
         return video && video.trim && video.trim().length > 0;
       },
+      
+      _checkPhotoBlogData: function(e) {
+        this.photoblog = [];
+        for (var i in e) {
+          this.push('photoblog', e[i]);
+        }
+      },
+      
+      _openPhotoBlog: function(e) {
+        var image = e.target.src;
+        var caption = e.target.getAttribute('data-caption');
+        this.$$('#photoblog-dialog').open();
+        this.$$('#photoblog-dialog-image').src = image;
+        this.$$('#photoblog-dialog-image-full').setAttribute('href', image);
+        this.$$('#photoblog-dialog-image').shadowRoot.querySelector('#img').setAttribute('style' , 'width: 100%; max-width: 500px');
+        this.$$('#photoblog-dialog-caption').markdown = caption;
+      },
+      
+      _playVideo: function() {
+        if (this.article.video) {
+          var arr = this.article.video.match(/^.*(?:(?:youtu\.be\/|v\/|vi\/|u\/\w\/|embed\/)|(?:(?:watch)?\?v(?:i)?=|\&v(?:i)?=))([^#\&\?]*).*/);
+          if (arr[1]) {
+            this.$$('#video-dialog').open()
+            this.$$('#video-content').videoId = arr[1];
+            this.$$('#video-content').play();
+          }
+        }
+      },
+      
+      videoReady: function() {
+        //var el = this.$$('#video-scrubber-area');
+        this._resize();
+        this.$$('#video-content').play();
+      },
 
+      videoResize: function() {
+        var height = ((this.$$('#video-content').getBoundingClientRect().width * 9) / 16)
+        this.$$('#video-content').setAttribute('height', `${height}px`);
+        this.$$('#video-dialog').center();
+      },
+
+      _videoDialogClosed: function() {
+        this.$$('#video-content').pause();
+      },
+
+      _openDeleteArticle: function() {
+        this.$$('#delete-dialog').open()
+      },
+
+      _cancelDelete: function() {
+        this.$$('#delete-dialog').cancel()
+      },
       
     };
     Polymer.NiceArticleBehavior = [
