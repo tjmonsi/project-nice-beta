@@ -5,6 +5,7 @@
 <link rel="import" href="../../../../bower_components/polymerfire/firebase-query.html">
 <link rel="import" href="../../../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
 <link rel="import" href="../../../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../../../bower_components/paper-ripple/paper-ripple.html">
 
 
 <!-- Component dependencies -->
@@ -29,21 +30,33 @@
     </firebase-query>
     
     <div class="horizontal layout wrap">
-      <a href="./?child=all" class="flex category">
-        <img src="https://firebasestorage.googleapis.com/v0/b/project-nice-polymer.appspot.com/o/icons%2Freload.png?alt=media&token=6ad05e47-c94b-4fb9-8b9b-65721b54175b"><br/>
-        All
+      <a href="./?child=[[_all]]" class="flex category">
+        <div style="position: relative">
+          
+          <img src="https://firebasestorage.googleapis.com/v0/b/project-nice-polymer.appspot.com/o/icons%2Freload.png?alt=media&token=6ad05e47-c94b-4fb9-8b9b-65721b54175b"><br/>
+          All
+          <paper-ripple></paper-ripple>
+        </div>
+        
       </a>
       
       <template is="dom-repeat" items="[[categories]]">
         <a href="./?child={{item.$key}}" class="flex category">
-          <img src="{{item.icon}}"><br/>
-          {{item.name}}
+          <div style="position: relative">
+            <img src="{{item.icon}}"><br/>
+            {{item.name}}
+            <paper-ripple></paper-ripple>  
+          </div>
+          
         </a>
       </template>
       
-      <a href="https://docs.google.com/spreadsheets/d/1W-lKUVVRXCQJQYwG2uEfao2af0GRhtn38MFZ1ExQS0w/edit?usp=sharing" class="flex category">
-        <img src="https://firebasestorage.googleapis.com/v0/b/project-nice-polymer.appspot.com/o/icons%2Fresearch-with-books.png?alt=media&token=fb4b8974-c43b-4dea-a6a8-0b326f5f4974"><br/>
-        Consolidated Research
+      <a target="_blank" href="https://docs.google.com/spreadsheets/d/1W-lKUVVRXCQJQYwG2uEfao2af0GRhtn38MFZ1ExQS0w/edit?usp=sharing" class="flex category">
+        <div style="position: relative">
+          <img src="https://firebasestorage.googleapis.com/v0/b/project-nice-polymer.appspot.com/o/icons%2Fresearch-with-books.png?alt=media&token=fb4b8974-c43b-4dea-a6a8-0b326f5f4974"><br/>
+          Consolidated Research  
+        </div>
+        
       </a>
     </div>
     
@@ -51,6 +64,13 @@
   <script>
     Polymer({
       is: 'nice-category-list',
+      
+      properties: {
+        _all: {
+          type: String,
+          value: "all"
+        }
+      },
       
       behaviors: [
         Polymer.NiceCategoryBehavior

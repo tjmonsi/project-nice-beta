@@ -1,0 +1,54 @@
+<!-- Polymer dependencies -->
+<link rel="import" href="../../../../bower_components/polymer/polymer.html">
+
+<!-- Polymer Elements dependencies -->
+<!--<link rel="import" href="../../../../bower_components/app-route/app-route.html">-->
+
+<!-- Component dependencies -->
+<!--<link rel="import" href="../../../components/nice-article/nice-article-component/nice-article-component.html">-->
+
+<!-- Style dependencies -->
+<link rel="import" href="nice-dashboard-data-page-style.html">
+
+<dom-module id="nice-dashboard-data-page">
+  <template>
+    <style is="custom-style" include="nice-dashboard-data-page-style">
+      :host {
+        display: block;
+      }
+    </style>
+  
+    <!--<app-route-->
+    <!--  route="{{route}}"-->
+    <!--  pattern="/:page"-->
+    <!--  data="{{routeData}}"></app-route>-->
+  
+    <!--<nice-article-component article-id="[[articleId]]" user="[[user]]"></nice-article-component>-->
+    
+  </template>
+  <script>
+    Polymer({
+      is: 'nice-dashboard-data-page',
+      
+      // properties: {
+      //   route: {
+      //     type: Object
+      //   },
+      //   routeData: {
+      //     type: Object
+      //   },
+      //   articleId: {
+      //     type: String
+      //   }
+      // },
+      
+      // observers: [
+      //   '_routeDataChanged(routeData.page)'  
+      // ],
+      
+      // _routeDataChanged: function(page) {
+      //   this.articleId = page;
+      // }
+    })
+  </script>
+</dom-module>

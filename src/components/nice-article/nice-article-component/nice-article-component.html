@@ -6,6 +6,7 @@
 <link rel="import" href="../../../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
 <link rel="import" href="../../../../bower_components/marked-element/marked-element.html">
 <link rel="import" href="../../../../bower_components/paper-material/paper-material.html"> 
+<link rel="import" href="../../../../bower_components/paper-tooltip/paper-tooltip.html"> 
 <link rel="import" href="../../../../bower_components/paper-icon-button/paper-icon-button.html"> 
 <link rel="import" href="../../../../bower_components/iron-image/iron-image.html">
 <link rel="import" href="../../../../bower_components/paper-spinner/paper-spinner.html">
@@ -15,6 +16,7 @@
 <link rel="import" href="../../../../bower_components/iron-icons/av-icons.html">
 <link rel="import" href="../../../../bower_components/neon-animation/animations/scale-up-animation.html">
 <link rel="import" href="../../../../bower_components/neon-animation/animations/fade-out-animation.html">
+<link rel="import" href="../../../../bower_components/disqus-comments/disqus-comments.html">
 
 <!-- Component dependencies -->
 <!-- NICE-Module depenencies -->
@@ -131,6 +133,14 @@
               <paper-icon-button on-tap="_openDeleteArticle" icon="icons:delete"></paper-icon-button>
             </template>
           </div>
+          
+          <template is="dom-if" if="{{_checkPermission('member', owner, user, roles.member)}}">
+            <h2>Comments </h2>
+            <disqus-comments shortname="project-nice" identifier="[[articleId]]" https></disqus-comments>
+          </template>
+          
+          
+          
   
         </div>
         <div class="flex"></div>
@@ -200,6 +210,8 @@
 
     <paper-toast id="toaster"></paper-toast>
     
+    
+    
   </template>
   <script>
     Polymer({
@@ -209,6 +221,19 @@
         '_checkPhotoBlogData(photoblogData)',
         '_checkCategories(article.categories)'
       ],
+      
+      ready: function() {
+        
+
+
+        
+        
+        
+        
+
+
+                                
+      },
       
       behaviors: [
         Polymer.NiceArticleBehavior,

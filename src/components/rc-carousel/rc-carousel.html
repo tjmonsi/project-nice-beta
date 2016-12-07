@@ -81,9 +81,21 @@
       
       attached: function() {
         this._observer = Polymer.dom(this).observeNodes(function(info) {
-          this._contentAdded(info.addedNodes.filter(function(node) {
-            return (node.nodeType === Node.ELEMENT_NODE);
-          }));
+          
+          var arr = this.$$('#carousel-buttons-container').getEffectiveChildren();
+          for (var i in arr) {
+            
+            if (arr[i].hasAttribute && arr[i].hasAttribute('data-index')) Polymer.dom(this.$$('#carousel-buttons-container')).removeChild(arr[i]);
+          }
+          
+          Polymer.dom.flush();
+          
+          setTimeout(function() {
+            this._contentAdded(info.addedNodes.filter(function(node) {
+              return (node.nodeType === Node.ELEMENT_NODE);
+            }));
+          }.bind(this), 500)
+          
         }.bind(this));
         window.addEventListener('resize', this._resize.bind(this));
       },
@@ -121,7 +133,7 @@
         }
         
         Polymer.dom.flush();
-        this._carouselIndexChanged(this.carouselIndex);
+        this._carouselIndexChanged(0);
       },
       
       _carouselIntervalChanged: function(carouselInterval) {
@@ -139,6 +151,7 @@
         if (this.$$('#carousel').selectedItem && this.$$('#carousel').selectedItem.resetLayout) {
            this.$$('#carousel').selectedItem.resetLayout();
         }
+        Polymer.dom.flush();
         this.$$('#carousel-buttons-container').select(index);
       },
       

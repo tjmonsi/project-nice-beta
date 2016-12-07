@@ -173,6 +173,7 @@
       },
       
       _routeDataPageChanged: function(page, prefix, parentRoute) {
+        // console.log(prefix, parentRoute)
         if (!parentRoute || prefix === parentRoute) {
           this.page = page || this.defaultPage;
           this.viewPage = page || this.defaultPage;
@@ -187,7 +188,7 @@
       },
 
       _pageChanged: function(page) {
-        // console.log(page)
+        console.log(page)
         if (this._loadedPages && this._loadedPages.indexOf(page) < 0) {
           var el = this.$$('#core-content').selectedItem;
           if (el) {
@@ -200,7 +201,7 @@
               if (this._waitingForLogin) {
                 clearTimeout(this._waitingForLogin);  
               }
-              
+              // console.log(page, resolvedPageUrl)
               this.importHref(resolvedPageUrl, this._pageLoaded.bind(this, page), this._showPage404.bind(this), true);  
             } else {
               this._waitForLogin();

@@ -11,6 +11,46 @@
     Polymer.NiceArticleBehaviorImpl = {
 
       properties: {
+        
+        articlePublished: {
+          type: String,
+          value: 'value'
+        },
+        
+        frontPublished: {
+          type: String,
+          value: 'frontPublished'
+        },
+        
+        newsPublished: {
+          type: String,
+          value: 'newsPublished'
+        },
+        
+        pressPublished: {
+          type: String,
+          value: 'pressPublished'
+        },
+        
+        sapPublished: {
+          type: String,
+          value: 'sapPublished'
+        },
+        
+        peoplePublished: {
+          type: String,
+          value: 'peoplePublished'
+        },
+        
+        photoblogPublished: {
+          type: String,
+          value: 'photoblogPublished'
+        },
+        
+        videoPublished: {
+          type: String,
+          value: 'videoPublished'
+        },
 
         photoblog: {
           type: Object,
@@ -20,6 +60,12 @@
         article: {
           type: Object,
           value: function() { return null; }
+        },
+        
+        _startAt: {
+          type: Number,
+          readonly: true,
+          value: 1
         },
         
         articleTitle: {
@@ -56,6 +102,11 @@
           type: String,
           value: function() { return null; }
         },
+        
+        categoryPicked: {
+          type: String,
+          observer: '_categoryChanged'
+        },
 
         articlePath: {
           type: Object,
@@ -69,6 +120,38 @@
           value: function() { return this._articleGroup; }
         }
       },
+      
+      get _frontPublished() {
+        return 'front'
+      },
+      
+      get _sapPublished() {
+        return 'sap'
+      },
+      
+      get _newsPublished() {
+        return 'news'
+      },
+      
+      get _pressPublished() {
+        return 'press'
+      },
+      
+      get _peoplePublished() {
+        return 'people'
+      },
+      
+      get _photoblogPublished() {
+        return 'photoblog'
+      },
+      
+      get _videoPublished() {
+        return 'video'
+      },
+      
+      get _published() {
+        return 'Published'
+      },
 
       get _articleGroup() {
         return 'article_group';
@@ -78,17 +161,27 @@
         var options = this._version + '/' + this._articleGroup + '/options';
         return {
           articles: this._version + '/' + this._articleGroup + '/articles',
+          comments: this._version + '/' + this._articleGroup + '/comments',
           owners: this._version + '/' + this._articleGroup + '/owners',
           media: this._version + '/' + this._articleGroup + '/media',
           photoblog: this._version + '/' + this._articleGroup + '/photoblog',
           tagWords: this._version + '/' + this._articleGroup + '/tagwords',
           options: {
-            published: options + '/published'
+            published: options + '/published',
+            comments: options + '/comments'
           }
         };
       },
       
       observers: [
+        '_checkArticleArray(publishedArticles, "publishedArticles")',
+        '_checkArticleArray(frontArticles, "frontArticles")',
+        '_checkArticleArray(videoArticles, "videoArticles")',
+        '_checkArticleArray(peopleArticles, "peopleArticles")',
+        '_checkArticleArray(sapArticles, "sapArticles")',
+        '_checkArticleArray(pressArticles, "pressArticles")',
+        '_checkArticleArray(photoArticles, "photoArticles")',
+        '_checkArticleArray(newsArticles, "newsArticles")',
         '_checkPublishedArticles(publishedArticles.splices, "publishedArticles")',
         '_checkPublishedArticles(frontArticles.splices, "frontArticles")',
         '_checkPublishedArticles(videoArticles.splices, "videoArticles")',
@@ -100,9 +193,14 @@
         '_checkPublishedArticles(trendingArticles.splices, "trendingArticles", "viewsPublished")',
       ],
       
+      _checkArticleArray: function(e, s) {
+        this._checkPublishedArticles(e, s);
+      },
+      
       _checkPublishedArticles: function(e, s, v) {
         this[s+'Sorted'] = [];
-        this[s+'Sorted'] = this[s].sort(this._articleSorter.bind(this, v ? v : 'value'));;
+        this[s+'Sorted'] = this[s].sort(this._articleSorter.bind(this, v ? v : 'value'));
+        // this.notifySplices(s+'Sorted');
       },
       
       _checkDraftArticles: function() {
@@ -112,6 +210,31 @@
       
       _articleSorter: function(sorter, a, b) {
         return a[sorter] < b[sorter];
+      },
+      
+      _categoryChanged: function(c) {
+        console.log(c)
+        if (c==='all') {
+          this.articlePublished = 'value';
+          this.frontPublished = this._frontPublished + this._published;
+          this.sapPublished = this._sapPublished + this._published;
+          this.newsPublished = this._newsPublished + this._published;
+          this.pressPublished = this._pressPublished + this._published;
+          this.peoplePublished = this._peoplePublished + this._published;
+          this.photoblogPublished = this._photoblogPublished + this._published;
+          this.videoPublished = this._videoPublished + this._published;
+        } else {
+          this.articlePublished = c + this._published;
+          this.frontPublished = c + this._frontPublished.charAt(0).toUpperCase() + this._frontPublished.slice(1) + this._published;
+          this.sapPublished = c + this._sapPublished.charAt(0).toUpperCase() + this._sapPublished.slice(1) + this._published;
+          this.newsPublished = c + this._newsPublished.charAt(0).toUpperCase() + this._newsPublished.slice(1) + this._published;
+          this.pressPublished = c + this._pressPublished.charAt(0).toUpperCase() + this._pressPublished.slice(1) + this._published;
+          this.peoplePublished = c + this._peoplePublished.charAt(0).toUpperCase() + this._peoplePublished.slice(1) +  this._published;
+          this.photoblogPublished = c + this._photoblogPublished.charAt(0).toUpperCase() + this._photoblogPublished.slice(1) +  this._published;
+          this.videoPublished = c + this._videoPublished.charAt(0).toUpperCase() + this._videoPublished.slice(1) + this._published;
+        }
+        
+        console.log(this.frontPublished)
       },
       
       _createArticle: function(title) {
@@ -221,7 +344,7 @@
 
       videoResize: function() {
         var height = ((this.$$('#video-content').getBoundingClientRect().width * 9) / 16)
-        this.$$('#video-content').setAttribute('height', `${height}px`);
+        this.$$('#video-content').setAttribute('height', height + 'px');
         this.$$('#video-dialog').center();
       },
 

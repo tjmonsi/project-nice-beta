@@ -1,0 +1,332 @@
+<!--
+@license
+Copyright (c) 2016 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../../../../bower_components/polymer/polymer.html">
+
+<!-- Polymer Elements dependencies -->
+<link rel="import" href="../../../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../../../bower_components/paper-toggle-button/paper-toggle-button.html">
+<link rel="import" href="../../../../bower_components/paper-input/paper-textarea.html">
+<link rel="import" href="../../../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../../../bower_components/paper-progress/paper-progress.html">
+<link rel="import" href="../../../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../../../bower_components/paper-tooltip/paper-tooltip.html">
+<link rel="import" href="../../../../bower_components/iron-icons/image-icons.html">
+<link rel="import" href="../../../../bower_components/iron-icons/iron-icons.html">
+
+<link rel="import" href="../../../../bower_components/polymerfire/firebase-document.html">
+<link rel="import" href="../../../../bower_components/polymerfire/firebase-query.html">
+<link rel="import" href="../../../../bower_components/polymerfire/firebase-storage.html">
+
+<!-- Behvaior dependencies -->
+<link rel="import" href="../../rc-core/rc-core-utils-behavior.html">
+<link rel="import" href="../nice-pages-behaviors/nice-pages-behavior.html">
+<link rel="import" href="../../nice-module/nice-behaviors/nice-file-behavior.html">
+<link rel="import" href="../../nice-user/nice-user-behavior/nice-user-behavior.html">
+
+<script src="../../../../bower_components/underscore/underscore.js"></script>
+
+<dom-module id="nice-about-form">
+
+  <template>
+
+    <style is="custom-style" include="iron-flex iron-flex-alignment iron-flex-factors">
+      :host .article-editor-form {
+        padding: 20px;
+        padding-top: 0px;
+      }
+
+      :host .file-list-item {
+        padding-top: 10px;
+      }
+
+      :host .file-list-item-name {
+        padding-left: 10px;
+        font-size: 0.7em;
+      }
+
+      :host .file-buttons {
+
+      }
+
+      :host .category-icon[active] {
+        background-color: var(--paper-green-500);
+        color: white;
+      }
+
+      :host paper-tooltip {
+        --paper-tooltip: {
+          font-size: 1em;
+        }
+
+      }
+
+    </style>
+
+    <firebase-document
+      id="data-ref"
+      path$="[[pagePath.aboutUs]]"
+      data="{{article}}">
+    </firebase-document>
+    <firebase-query
+      id="media-ref"
+      path$="[[pagePath.media]]"
+      data="{{photoblog}}">
+    </firebase-query>
+
+    <firebase-storage
+      id="header-image-storage"
+      path="[[pagePath.media]]"
+      files="[[file]]"
+      uploaded-files="{{headerImage}}"
+      on-error="_catchError"
+      auto-upload>
+    </firebase-storage>
+    
+    <!-- ADD CHECK ON USER ROLE HERE -->
+    <template is="dom-if" if="{{user}}">
+      <firebase-document
+        path="[[userPath.options.members]]/[[user.uid]]"
+        data="{{memberRole}}">
+      </firebase-document>
+    </template>
+
+
+    <template is="dom-if" if="{{_checkPermission('editor', owner, user, roles.member)}}">
+      <div class="article-editor-form">
+        <form is="iron-form" id="article-editor">
+          <paper-input
+            id="title"
+            name="title"
+            label="Title"
+            value="{{article.title}}"
+            max="100"
+            char-counter
+            >
+          </paper-input>
+          <paper-input
+            name="header-image"
+            id="header-image"
+            label="Header Image"
+            value="{{article.header_image}}">
+          </paper-input>
+          <input
+            id="header-image-file-upload"
+            name="headerImageFileUpload"
+            placeholder="Upload it here"
+            type="file"
+            data-for="header-image"
+            on-change="uploadSingleFile"
+            >
+          </input>
+          <template is="dom-repeat" items="{{headerImage}}">
+            <div class="horizontal layout center file-list-item">
+              <paper-progress class="flex-3" value="{{item.bytesTransferred}}" min="0" max="{{item.totalBytes}}"></paper-progress>
+              <div class="flex file-list-item-name">
+                {{item.ref.name}}
+              </div>
+              <div class="file-buttons">
+                <template is="dom-if" if="{{_downloadFull(item.bytesTransferred, item.totalBytes)}}">
+                  <paper-icon-button data-url$="{{item.downloadURL}}" icon="image:image" on-tap="_useAsHeaderImage" raised></paper-icon-button>
+                  <paper-icon-button data-url$="{{item.downloadURL}}" data-index$="{{index}}" data-path$="{{item.ref.fullPath}}" icon="icons:delete" on-tap="_deleteFile" raised></paper-icon-button>
+                </template>
+                <template is="dom-if" if="{{!_downloadFull(item.bytesTransferred, item.totalBytes)}}">
+                  <paper-icon-button data-index$="{{index}}" data-variable="headerImage" data-storage="#header-image-storage" icon="icons:cancel" on-tap="_cancelUpload" raised></paper-icon-button>
+                </template>
+              </div>
+            </div>
+          </template>
+          <hr/>
+          <paper-textarea
+            id="sub-title"
+            label="Short Description"
+            name="sub-title"
+            value="{{article.sub_title}}"
+            rows="1"
+            max="200"
+            char-counter>
+          </paper-textarea>
+          <paper-textarea
+            id="body"
+            label="Body"
+            name="body"
+            value="{{article.body}}"
+            rows="3"
+            char-counter>
+          </paper-textarea>
+          <hr/>
+        </form>
+      </div>
+
+    </template>
+    <paper-toast id="toaster"></paper-toast>
+  </template>
+
+  <script>
+
+    Polymer({
+
+      is: 'nice-about-form',
+
+      properties: {
+
+        headerImage: {
+          type: Object
+        },
+        photoBlogUploads: {
+          type: Object
+        },
+
+      },
+
+      ready: function() {
+        console.log(this.roles)
+      },
+
+      observers: [
+
+        '_checkHeaderImageUpload(headerImage.splices)',
+        '_checkPhotoBlogUploads(photoBlogUploads.splices)',
+        '_checkArticle(article.*)',
+        // '_checkTags(article.tagwords)',
+        // '_checkCategories(article.categories, categories.splices)'
+      ],
+
+      // behaviors: [
+      //   Polymer.UtilsBehavior,
+      //   Polymer.UserRoleBehavior,
+      //   Polymer.FileBehavior,
+      //   Polymer.CategoryBehavior,
+      //   Polymer.PagesBehavior,
+      // ],
+      
+      behaviors: [
+        Polymer.NiceUserBehavior,
+        Polymer.NiceFileBehavior,
+        Polymer.NicePagesBehavior,
+      ],
+
+      _checkArticle: function(e) {
+        if (e.path !== 'article') {
+          this._setDatePublished();
+        }
+      },
+
+      _setDatePublished: _.debounce(function() {
+        if (this.$$('#data-ref')) {
+          var updates = {};
+          // console.log(this.$$('#data-ref').path );
+          updates[this.$$('#data-ref').path + '/date_published'] = this._todayUTC
+          firebase.database().ref().update(updates).catch(this._catchError.bind(this));
+        }
+      }, 1000),
+
+
+
+      _checkHeaderImageUpload: function(headerImage) {
+        // console.log(headerImage)
+        if (this.$$('#header-image-file-upload')) {
+          this.$$('#header-image-file-upload').value = '';
+        }
+
+        if (headerImage && headerImage.indexSplices[0] && headerImage.indexSplices[0].object) {
+          var arr = headerImage.indexSplices[0].object;
+          if (arr && arr.length > 0 && arr[arr.length - 1].downloadURL) {
+            this.$$('#header-image').value = arr[arr.length - 1].downloadURL
+          }
+        }
+      },
+
+      _checkPhotoBlogUploads: function(photoblog) {
+        if (photoblog && photoblog.indexSplices[0] && photoblog.indexSplices[0].object) {
+          var arr = photoblog.indexSplices[0].object;
+
+          if (arr.length === 0) {
+            if (this.$$('#photoblog-file-upload')) {
+              this.$$('#photoblog-file-upload').value = '';
+            }
+          }
+
+          for (var i in arr) {
+            if (arr[i].totalBytes === arr[i].bytesTransferred) {
+              var key = arr[i].ref.fullPath.replace(/\#|\.|\$|\[|\]/g, '-');
+              firebase.database().ref(key).set({
+                fullPath: arr[i].ref.fullPath,
+                name: arr[i].ref.name,
+                caption: arr[i].ref.name,
+                downloadURL: arr[i].downloadURL
+              }).then(function(){
+                var j = _.findIndex(this.photoBlogUploads, {downloadURL: arr[i].downloadURL})
+                if (j >= 0) {
+                  this.splice('photoBlogUploads', i , 1);
+                }
+              }.bind(this)).catch(this._catchError.bind(this));
+            }
+          }
+        }
+      },
+
+      _deletePhotoblogFile: function(e) {
+        var index = e.target.getAttribute('data-index');
+        var fullPath = e.target.getAttribute('data-path');
+        firebase.database().ref(this.$$('#photoblog-ref').path + '/' + index).remove()
+          .then(function(){
+            return firebase.storage().ref(fullPath).delete();
+          }.bind(this))
+          .then(function(){
+            this.$.toaster.show('File Deleted')
+          }.bind(this))
+          .catch(this._catchError.bind(this));
+      },
+
+      _useAsHeaderImage: function(e) {
+        if (e.target.getAttribute('data-url')) {
+          this.$$('#header-image').value = e.target.getAttribute('data-url');
+        } else {
+          this._catchError(new Error('Error: Cannot use file'));
+        }
+      },
+
+      _deleteFile: function(e) {
+        var url = e.target.getAttribute('data-url');
+        var path = e.target.getAttribute('data-path');
+        var index = e.target.getAttribute('data-index');
+        if (url && path) {
+          firebase.storage().ref(path).delete().then(function() {
+            if (this.$$('#header-image').value === url) {
+              this.$$('#header-image').value = ''
+            }
+            this.splice('headerImage', index, 1);
+            this.$.toaster.show('File delete')
+          }.bind(this)).catch(this._catchError.bind(this));
+        } else {
+          this._catchError(new Error('Error: Cannot delete file'));
+        }
+      },
+
+      _cancelUpload: function(e) {
+        var index = e.target.getAttribute('data-index');
+        var storage = e.target.getAttribute('data-storage');
+        var variable = e.target.getAttribute('data-variable')
+        if (index) {
+
+          this.$$(storage).cancel(index);
+          this.splice(variable, index, 1);
+        }
+      },
+
+      _downloadFull: function(download, total) {
+        return download === total;
+      },
+    });
+
+  </script>
+
+</dom-module>

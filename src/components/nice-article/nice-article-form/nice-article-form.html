@@ -254,15 +254,15 @@
               on-change="onFlagChange"
             ></paper-toggle-button>
           </div>
-          <div class="horizontal layout" style="padding: 10px">
-            <span style="padding-right: 10px">
-              News Article:
-            </span>
-            <paper-toggle-button
-              id="news"
-              on-change="onFlagChange"
-            ></paper-toggle-button>
-          </div>
+          <!--<div class="horizontal layout" style="padding: 10px">-->
+          <!--  <span style="padding-right: 10px">-->
+          <!--    News Article:-->
+          <!--  </span>-->
+          <!--  <paper-toggle-button-->
+          <!--    id="news"-->
+          <!--    on-change="onFlagChange"-->
+          <!--  ></paper-toggle-button>-->
+          <!--</div>-->
           <div class="horizontal layout" style="padding: 10px">
             <span style="padding-right: 10px">
               Press Article:
@@ -364,7 +364,7 @@
       
       _checkFlags: function(o, f) {
         Polymer.dom.flush();
-        console.log(f, this.$$('#'+f))
+        // console.log(f, this.$$('#'+f))
         if (this.$$('#'+f)) {
           this.$$('#'+f).checked = this._forceZero(o, false);
         }
@@ -490,8 +490,8 @@
         obj.front = this.$$('#front').checked ? this._todayUTC : null;
         obj.frontPublished = checked ? obj.front : null;
         
-        obj.news = this.$$('#news').checked ? this._todayUTC : null;
-        obj.newsPublished = checked ? obj.news : null;
+        // obj.news = this.$$('#news').checked ? this._todayUTC : null;
+        // obj.newsPublished = checked ? obj.news : null;
         
         obj.press = this.$$('#press').checked ? this._todayUTC : null;
         obj.pressPublished = checked ? obj.press : null;
@@ -501,13 +501,20 @@
         
         obj.people = this.$$('#people').checked ? this._todayUTC : null;
         obj.peoplePublished = checked ? obj.people : null;
-
+        
         for (var i in this.article.categories) {
           if (this.article.categories[i]) {
-            obj[i] = this._todayUTC
-            obj[i+'Published'] = checked ? this._todayUTC : null
+            obj[i + 'Published'] = checked && obj.front ? this._todayUTC : null;
+            obj[i + 'FrontPublished'] = checked && obj.front ? this._todayUTC : null;
+            obj[i + 'NewsPublished'] = checked && obj.news ? this._todayUTC : null;
+            obj[i + 'PressPublished'] = checked && obj.press ? this._todayUTC : null;
+            obj[i + 'SapPublished'] = checked && obj.sap ? this._todayUTC : null;
+            obj[i + 'PeoplePublished'] = checked && obj.people ? this._todayUTC : null;
+            obj[i + 'VideoPublished'] = checked && obj.video ? this._todayUTC : null;
+            obj[i + 'PhotoblogPublished'] = checked && obj.photoblog ? this._todayUTC : null;
           }
         }
+        
         
         obj.views = this.publishOption.views ? this.publishOption.views : null;
         obj.viewsPublished = checked ? obj.views : null
@@ -523,7 +530,10 @@
 
         var updates = {}
 
-        updates[this.$$('#published-ref').path] = obj
+        for (var i in obj) {
+          updates[this.$$('#published-ref').path + '/' + i] = obj[i]  
+        }
+        
         
         firebase.database().ref().update(updates).then(function() {
           this.$.toaster.show(message);
@@ -586,26 +596,20 @@
       _tapCategory: function(e) {
         var id = e.target.id
         var active = e.target.active;
-
-        if (active) {
-          firebase.database().ref(this.$$('#data-ref').path + '/categories/' + id).set({
-            value: true
-          }).then(function(){
-            if (this.publishOption.value) {
-              return firebase.database().ref(this.$$('#published-ref').path + '/' + id).set(this._todayUTC)
-            } else if (this.draftOption.value) {
-              return firebase.database().ref(this.$$('#draft-ref').path + '/' + id).set(this._todayUTC)
-            }
-          }.bind(this)).catch(this._catchError.bind(this));
-        } else {
-          firebase.database().ref(this.$$('#data-ref').path + '/categories/' + id).remove().then(function(){
-            if (this.publishOption.value) {
-              return firebase.database().ref(this.$$('#published-ref').path + '/' + id).remove()
-            } else if (this.draftOption.value) {
-              return firebase.database().ref(this.$$('#draft-ref').path + '/' + id).remove()
-            }
-          }.bind(this)).catch(this._catchError.bind(this));
-        }
+        
+        var updates = {};
+        updates[this.$$('#data-ref').path + '/categories/' + id] = active ? {value: true} : null;
+        updates[this.$$('#published-ref').path + '/' + id] = active ? this._todayUTC : null;
+        updates[this.$$('#published-ref').path + '/' + id + 'Published'] = active && this.publishOption.value ? this._todayUTC : null;
+        updates[this.$$('#published-ref').path + '/' + id + 'FrontPublished'] = active && this.publishOption.front ? this._todayUTC : null;
+        updates[this.$$('#published-ref').path + '/' + id + 'NewsPublished'] = active && this.publishOption.news ? this._todayUTC : null;
+        updates[this.$$('#published-ref').path + '/' + id + 'PressPublished'] = active && this.publishOption.press ? this._todayUTC : null;
+        updates[this.$$('#published-ref').path + '/' + id + 'SapPublished'] = active && this.publishOption.sap ? this._todayUTC : null;
+        updates[this.$$('#published-ref').path + '/' + id + 'PeoplePublished'] = active && this.publishOption.people ? this._todayUTC : null;
+        updates[this.$$('#published-ref').path + '/' + id + 'VideoPublished'] = active && this.publishOption.video ? this._todayUTC : null;
+        updates[this.$$('#published-ref').path + '/' + id + 'PhotoblogPublished'] = active && this.publishOption.photoblog ? this._todayUTC : null;
+        
+        firebase.database().ref().update(updates).catch(this._catchError.bind(this))
       }
 
     });

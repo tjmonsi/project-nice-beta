@@ -1,0 +1,181 @@
+<!-- Polymer dependencies -->
+<link rel="import" href="../../../../bower_components/polymer/polymer.html">
+
+<!-- Polymer Elements dependencies -->
+<link rel="import" href="../../../../bower_components/paper-material/paper-material.html">
+<link rel="import" href="../../../../bower_components/paper-tooltip/paper-tooltip.html">
+<link rel="import" href="../../../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="../../../../bower_components/iron-image/iron-image.html">
+<link rel="import" href="../../../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../../../../bower_components/iron-icons/image-icons.html">
+<link rel="import" href="../../../../bower_components/iron-icons/editor-icons.html">
+<link rel="import" href="../../../../bower_components/paper-icon-button/paper-icon-button.html"> 
+<link rel="import" href="../../../../bower_components/iron-icons/editor-icons.html">
+
+<!-- Component dependencies -->
+<!-- RC-Layout dependencies -->
+<link rel="import" href="../../rc-layout/rc-side-content/rc-side-content.html">
+
+<!-- Behvaior dependencies -->
+<link rel="import" href="../../rc-core/rc-core-utils-behavior.html">
+<link rel="import" href="../nice-data-behaviors/nice-data-behavior.html">
+<link rel="import" href="../../nice-module/nice-behaviors/nice-category-behavior.html">
+<link rel="import" href="../../nice-user/nice-user-behavior/nice-user-behavior.html">
+
+<!-- Style dependencies -->
+<link rel="import" href="nice-data-summary-content-style.html">
+
+<dom-module id="nice-data-summary-content">
+  <template>
+    <style is="custom-style" include="nice-data-summary-content-style iron-flex iron-flex-alignment">
+      :host {
+        display: block;
+      }
+    </style>
+    
+    <firebase-document
+        path="[[openDataPath.openData]]/[[openDataId]]"
+        data="{{openData}}">
+    </firebase-document>
+    <firebase-document
+      path="[[openDataPath.openData]]/[[openDataId]]/date_published"
+      data="{{openDataDatePublished}}">
+    </firebase-document>
+    
+    <firebase-document
+      path$="[[categoryPath.categories]]"
+      data="{{categories}}">
+    </firebase-document>
+
+    <firebase-document
+      path$="[[openDataPath.media]]/[[openDataId]]"
+      data="{{mediaData}}">
+    </firebase-document>
+  
+    <!-- ADD CHECK ON USER ROLE HERE -->
+    <template is="dom-if" if="{{user}}">
+      <firebase-document
+        path="[[userPath.options.members]]/[[user.uid]]"
+        data="{{memberRole}}">
+      </firebase-document>
+    </template>
+  
+    <paper-material>
+      <div class="title-text">
+        <a href="/data/view/[[openDataId]]" class="title-anchor" target="_blank">
+          <h2>{{openData.title}}</h2>
+        </a>
+
+        <hr/>
+        <div class="article-body">
+          <!--<marked-element markdown="{{_shorten(openData.body)}}">-->
+          <!--  <div class="markdown-html"></div>-->
+          <!--</marked-element>-->
+          <div class="horizontal layout wrap center">
+            <template is="dom-repeat" items="{{media}}">
+              <div style="position: relative">
+                <a href="{{item.downloadURL}}" target="_blank">
+                  <paper-icon-button id="media-{{index}}" icon="{{_setIcon(item)}}"></paper-icon-button>
+                  <paper-tooltip for="media-{{index}}">{{item.caption}}</paper-tooltip>
+                </a>
+              </div>
+            </template>
+          </div>
+          <template is="dom-if" if="{{_forceZero(openData.categories)}}">
+            <div class="horizontal layout wrap center category-area">
+              <div class="category-title">
+                Categories:
+              </div>
+              <template is="dom-repeat" items="{{categoryArray}}">
+                <template is="dom-if" if="_categoryIcon(categories, item.$key)">
+                  <div style="position: relative">
+                    <iron-icon style="margin-left: 10px" id="{{item.$key}}" src="{{_categoryIcon(categories, item.$key)}}"></iron-icon>
+                    <paper-tooltip for="{{item.$key}}">{{_categoryName(categories, item.$key)}}</paper-tooltip>
+                  </div>
+
+                </template>
+              </template>
+            </div>
+          </template>
+          <div class="article-by-line">
+            Last Edited at: {{renderDate(openData.date_published)}}
+          </div>
+        </div>
+        <div class="buttons">
+          <a href="/data/view/[[openDataId]]">
+            <paper-button raised>
+              Read More...
+            </paper-button>
+          </a>
+          <template is="dom-if" if="{{_checkPermission('editor', owner, user, roles.member)}}">
+            <a href$="/data/edit/[[openDataId]]">
+               <paper-icon-button icon="editor:mode-edit"></paper-icon-button>
+            </a>
+          </template>
+        </div>
+      </div>  
+    </paper-material>
+
+    
+    
+  </template>
+  <script>
+    Polymer({
+      is: 'nice-data-summary-content',
+      
+      behaviors: [
+        Polymer.NiceDataBehavior,
+        Polymer.NiceCategoryBehavior,
+        Polymer.NiceUserBehavior,
+      ],
+      
+      observers: [
+        '_checkCategories(openData.categories)',
+        '_checkMediaData(mediaData)',
+      ],
+      
+      _checkCategories: function(categories) {
+        this.categoryArray = [];
+        for (var i in categories) {
+          this.push('categoryArray', {$key: i});
+        }
+      },
+
+      _categoryIcon: function(categories, key) {
+        if (categories[key]) {
+          return categories[key].icon
+        }
+      },
+
+      _categoryName: function(categories, key) {
+        if (categories[key]) {
+          return categories[key].name
+        }
+      },
+
+      _setIcon: function(item) {
+        if (item.contentType) {
+          if (item.contentType.indexOf('image/') >= 0) {
+            return 'image:image'
+          } else if (item.contentType === 'application/pdf' || item.name.indexOf('.pdf') >= item.name.length - 4) {
+            return 'image:picture-as-pdf'
+          } else if (item.contentType.indexOf('text/') >= 0) {
+            return 'icons:assignment'
+          }
+        } else if (item.name.indexOf('.xls') >= item.name.length - 5) {
+          return 'image:grid-on'
+        } else if (item.name.indexOf('.doc') >= item.name.length - 5) {
+          return 'icons:description'
+        }
+        return 'icons:view-module'
+      },
+
+      _checkMediaData: function(e) {
+        this.media = [];
+        for (var i in e) {
+          this.push('media', e[i]);
+        }
+      },
+    })
+  </script>
+</dom-module>

@@ -1,0 +1,8 @@
+//
+
+@import '../../../styles/variables';
+
+:host {
+  margin: 20px;
+  margin-top: $navigation-header-height;
+}

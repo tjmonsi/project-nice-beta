@@ -10,11 +10,28 @@
     "src/pages/nice-article/nice-article-edit-page/nice-article-edit-page.html",
     
     "src/pages/nice-dashboard/nice-dashboard-page.html",
+    "src/pages/nice-dashboard/nice-dashboard-home-page/nice-dashboard-home-page.html",
+    "src/pages/nice-dashboard/nice-dashboard-article-page/nice-dashboard-article-page.html",
+    "src/pages/nice-dashboard/nice-dashboard-data-page/nice-dashboard-data-page.html",
+    "src/pages/nice-dashboard/nice-dashboard-member-page/nice-dashboard-member-page.html",
     
     "src/pages/nice-data/nice-data-page.html",
     "src/pages/nice-data/nice-data-view-page/nice-data-view-page.html",
     "src/pages/nice-data/nice-data-list-page/nice-data-list-page.html",
     "src/pages/nice-data/nice-data-edit-page/nice-data-edit-page.html",
+    
+    "src/pages/nice-about/nice-about-page.html",
+    "src/pages/nice-about/nice-about-view-page/nice-about-view-page.html",
+    "src/pages/nice-about/nice-about-edit-page/nice-about-edit-page.html",
+    
+    "src/pages/nice-member/nice-member-page.html",
+    "src/pages/nice-member/nice-member-view-page/nice-member-view-page.html",
+    "src/pages/nice-member/nice-member-list-page/nice-member-list-page.html",
+    "src/pages/nice-member/nice-member-edit-page/nice-member-edit-page.html",
+    
+    "src/pages/nice-profile/nice-profile-page.html",
+    "src/pages/nice-profile/nice-profile-view-page/nice-profile-view-page.html",
+    "src/pages/nice-profile/nice-profile-edit-page/nice-profile-edit-page.html",
     
     "src/pages/nice-home/nice-home-page.html",
     

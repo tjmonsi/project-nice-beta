@@ -38,7 +38,7 @@
     <firebase-query
       path="[[articlePath.options.published]]"
       data="{{publishedArticles}}"
-      order-by-child="value"
+      order-by-child="[[articlePublished]]"
       limit-to-last="[[limit]]"
       start-at="[[_startAt]]">
     </firebase-query>
@@ -46,65 +46,89 @@
     <firebase-query
       path="[[articlePath.options.published]]"
       data="{{videoArticles}}"
-      order-by-child="videoPublished"
-      limit-to-last="1">
+      order-by-child="[[videoPublished]]"
+      limit-to-last="1"
+      start-at="[[_startAt]]">
     </firebase-query>
     
     <firebase-query
       path="[[articlePath.options.published]]"
       data="{{photoArticles}}"
-      order-by-child="photoblogPublished"
-      limit-to-last="1">
+      order-by-child="[[photoblogPublished]]"
+      limit-to-last="1"
+      start-at="[[_startAt]]">
     </firebase-query>
     
     <firebase-query
       path="[[articlePath.options.published]]"
       data="{{newsArticles}}"
-      order-by-child="newsPublished"
-      limit-to-last="1">
+      order-by-child="[[newsPublished]]"
+      limit-to-last="1"
+      start-at="[[_startAt]]">
     </firebase-query>
     
-    <firebase-query
-      path="[[articlePath.options.published]]"
-      data="{{pressArticles}}"
-      order-by-child="pressPublished"
-      limit-to-last="1">
-    </firebase-query>
+    <!--<firebase-query-->
+    <!--  path="[[articlePath.options.published]]"-->
+    <!--  data="{{pressArticles}}"-->
+    <!--  order-by-child="[[pressPublished]]"-->
+    <!--  limit-to-last="1"-->
+    <!--  start-at="[[_startAt]]">-->
+    <!--</firebase-query>-->
     
     <firebase-query
       path="[[articlePath.options.published]]"
       data="{{trendingArticles}}"
       order-by-child="viewsPublished"
-      limit-to-last="10">
+      limit-to-last="10"
+      start-at="[[_startAt]]">
     </firebase-query>
     
     
     <rc-side-content class="nice-article-list">
       <div main-content>
         <div class="horizontal layout wrap">
-          <div class="flex article-list-section">
-            <h1>Video</h1>
-            <nice-summary-small-article 
-              article-id="[[_returnArrayElementAttribute(videoArticlesSorted, 0, '$key', videoArticles.splices)]]"></nice-summary-small-article>
-          </div>
-          <div class="flex article-list-section">
-            <h1>Photoblog</h1>
-            <nice-summary-small-article 
-              article-id="[[_returnArrayElementAttribute(photoArticlesSorted, 0, '$key', photoArticles.splices)]]"></nice-summary-small-article>
-          </div>
+          <template is="dom-if" if="[[_forceZero(videoArticlesSorted)]]">
+            <div class="flex article-list-section">
+              <h1>Video</h1>
+              <template is="dom-repeat" items="[[videoArticlesSorted]]">
+                <nice-summary-small-article 
+                  article-id="[[item.$key]]"></nice-summary-small-article>
+              </template>
+              
+            </div>
+          </template>
+          
+          <template is="dom-if" if="[[_forceZero(photoArticlesSorted)]]">
+            <div class="flex article-list-section">
+              <h1>Photoblog</h1>
+              <template is="dom-repeat" items="[[photoArticlesSorted]]">
+                <nice-summary-small-article 
+                  article-id="[[item.$key]]"></nice-summary-small-article>
+              </template>
+            </div>
+          </template>
         </div>
         
         <div class="horizontal layout wrap">
-          <div class="flex article-list-section">
-            <h1>News</h1>
-            <nice-summary-small-article 
-              article-id="[[_returnArrayElementAttribute(newsArticlesSorted, 0, '$key', newsArticles.splices)]]"></nice-summary-small-article>
-          </div>
-          <div class="flex article-list-section">
-            <h1>Press</h1>
-            <nice-summary-small-article 
-              article-id="[[_returnArrayElementAttribute(pressArticlesSorted, 0, '$key', pressArticles.splices)]]"></nice-summary-small-article>
-          </div>
+          <template is="dom-if" if="[[_forceZero(newsArticlesSorted)]]">
+            <div class="flex article-list-section">
+              <h1>News</h1>
+              <template is="dom-repeat" items="[[newsArticlesSorted]]">
+                <nice-summary-small-article 
+                  article-id="[[item.$key]]"></nice-summary-small-article>
+              </template>
+            </div>
+          </template>
+          <!--<template is="dom-if" if="[[_forceZero(pressArticlesSorted)]]">-->
+          <!--  <div class="flex article-list-section">-->
+          <!--    <h1>Press</h1>-->
+          <!--    <template is="dom-repeat" items="[[pressArticlesSorted]]">-->
+          <!--      <nice-summary-small-article -->
+          <!--        article-id="[[item.$key]]"></nice-summary-small-article>-->
+          <!--    </template>-->
+              
+          <!--  </div>-->
+          <!--</template>-->
         </div>
         
         <!-- LIST HERE -->

@@ -1,1 +1,7 @@
 // nice-dashboard-page-style
+
+@import '../../styles/variables';
+
+:host {
+  margin-top: $navigation-header-height;
+}

@@ -1,0 +1,238 @@
+<!-- Polymer dependencies -->
+<link rel="import" href="../../../../bower_components/polymer/polymer.html">
+
+<!-- Polymer Elements dependencies -->
+<!--<link rel="import" href="../../../../bower_components/app-route/app-route.html">-->
+<link rel="import" href="../../../../bower_components/google-analytics/google-analytics.html">
+<link rel="import" href="../../../../bower_components/google-signin/google-signin.html">
+<link rel="import" href="../../../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+
+<!-- Component dependencies -->
+<!--<link rel="import" href="../../../components/nice-article/nice-article-component/nice-article-component.html">-->
+
+<!-- Style dependencies -->
+<link rel="import" href="nice-dashboard-home-page-style.html">
+
+<dom-module id="nice-dashboard-home-page">
+  <template>
+    <style is="custom-style" include="nice-dashboard-home-page-style iron-flex iron-flex-alignment iron-flex-factors">
+      :host {
+        display: block;
+      }
+      
+      /**
+       * <google-analytics-dashboard> styles.
+       */
+      google-analytics-dashboard {
+        display: block;
+        padding: 2em;
+        transition: opacity .3s ease;
+      }
+      google-analytics-dashboard:not([authorized]) {
+        opacity: .3;
+        pointer-events: none;
+      }
+      /**
+       * <google-analytics-chart> styles.
+       */
+      google-analytics-chart {
+        box-shadow: 0 0 .5em rgba(0,0,0,.1);
+        background: #fff;
+        float: left;
+        margin: 0 2em 2em 0;
+        padding: 2em 2em 1em;
+        transition: opacity .2s ease;
+        max-width: 100%;
+      }
+      google-analytics-chart:first-of-type {
+        clear: both;
+      }
+      google-analytics-chart h3 {
+        font-size: 1.3em;
+        font-weight: 300;
+        margin: 0;
+      }
+      /**
+       * <google-analytics-view-selector> and
+       * <google-analytics-date-selector> styles.
+       */
+      google-analytics-view-selector,
+      google-analytics-date-selector {
+        box-shadow: 0 0 .5em rgba(0,0,0,.1);
+        background: #fff;
+        display: -webkit-flex;
+        display: -ms-flexbox;
+        display: flex;
+        -webkit-flex-direction: column;
+        -ms-flex-direction: column;
+        flex-direction: column;
+        margin: 0 0 2em 0;
+        max-width: 600px;
+        padding: 2em .5em 1em 2em;
+      }
+      google-analytics-date-selector {
+        max-width: 500px;
+      }
+      google-analytics-view-selector {
+        max-width: 750px;
+      }
+      @media (min-width: 600px) {
+        google-analytics-view-selector,
+        google-analytics-date-selector {
+          display: -webkit-flex;
+          display: -ms-flexbox;
+          display: flex;
+          -webkit-flex-direction: row;
+          -ms-flex-direction: row;
+          flex-direction: row;
+        }
+      }
+      :root {
+        --google-analytics-control: {
+          display: block;
+          -webkit-flex: 1 1 0%;
+          -ms-flex: 1 1 0%;
+          flex: 1 1 0%;
+          margin: 0 1.5em 1em 0;
+          min-width: 0;
+        };
+        --google-analytics-label: {
+          display: block;
+          font-weight: bold;
+          padding: 0 0 .4em 2px;
+        };
+        --google-analytics-field: {
+          border: 1px solid #ccc;
+          border-radius: 4px;
+          box-sizing: border-box;
+          height: 34px;
+          line-height: 20px;
+          padding: 6px 12px;
+          transition: border-color .2s;
+          width: 100%;
+        };
+        --google-analytics-field-focus: {
+          border-color: #4d90fe;
+          outline: 0;
+        };
+      }
+      google-analytics-view-selector {
+        --google-analytics-view-selector-control:
+            var(--google-analytics-control);
+        --google-analytics-view-selector-label:
+            var(--google-analytics-label);
+        --google-analytics-view-selector-select:
+            var(--google-analytics-field);
+        --google-analytics-view-selector-select-focus:
+            var(--google-analytics-field-focus);
+      }
+      google-analytics-date-selector {
+        --google-analytics-date-selector-control:
+            var(--google-analytics-control);
+        --google-analytics-date-selector-label:
+            var(--google-analytics-label);
+        --google-analytics-date-selector-input:
+            var(--google-analytics-field);
+        --google-analytics-date-selector-input-focus:
+            var(--google-analytics-field-focus);
+      }
+    </style>
+  
+
+
+    <google-signin
+      client-id="1064649909706-d2lvd9fdsncpo2iq3hrkcmp7d9qhbdgi.apps.googleusercontent.com"
+      scopes="https://www.googleapis.com/auth/analytics.readonly">
+    </google-signin>
+
+    <google-analytics-dashboard>
+
+      <google-analytics-date-selector></google-analytics-date-selector>
+
+      <google-analytics-chart
+        ids="ga:123286159"
+        type="area"
+        metrics="ga:sessions"
+        dimensions="ga:date">
+        <h3>Site Traffic</h3>
+      </google-analytics-chart>
+
+      <google-analytics-chart
+        ids="ga:123286159"
+        type="column"
+        metrics="ga:avgPageLoadTime"
+        dimensions="ga:date">
+        <h3>Average Page Load Times</h3>
+      </google-analytics-chart>
+
+      <google-analytics-chart
+        ids="ga:123286159"
+        type="geo"
+        metrics="ga:users"
+        dimensions="ga:country">
+        <h3>Users by Country</h3>
+      </google-analytics-chart>
+
+      <google-analytics-chart
+        ids="ga:123286159"
+        type="pie"
+        metrics="ga:pageviews"
+        dimensions="ga:browser"
+        sort="-ga:pageviews"
+        max-results="6">
+        <h3>Pageviews by Browser</h3>
+      </google-analytics-chart>
+
+    </google-analytics-dashboard>
+    
+  </template>
+  <script>
+    Polymer({
+      is: 'nice-dashboard-home-page',
+      
+      properties: {
+        ids: {
+          type: String,
+          // value: 'ga:123286159',
+          // readOnly: true
+        },
+        setupReady: {
+          type: Boolean,
+          observer: 'setupChanged'
+        }
+      },
+
+
+
+      // behaviors: [
+      //   Polymer.UserRoleBehavior,
+      // ],
+
+      setupChanged: function(e) {
+        console.log(e)
+        if (e) {
+          this.ids = 'ga:123286159'
+        }
+      },
+      // properties: {
+      //   route: {
+      //     type: Object
+      //   },
+      //   routeData: {
+      //     type: Object
+      //   },
+      //   articleId: {
+      //     type: String
+      //   }
+      // },
+      
+      // observers: [
+      //   '_routeDataChanged(routeData.page)'  
+      // ],
+      
+      // _routeDataChanged: function(page) {
+      //   this.articleId = page;
+      // }
+    })
+  </script>
+</dom-module>

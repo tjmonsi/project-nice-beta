@@ -1,0 +1,144 @@
+<link rel="import" href="../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../nice-module/nice-behaviors/nice-utils-behavior.html">
+<script>
+  (function(){
+    'use strict';
+
+    /** @polymerBehavior Polymer.NiceDataBehavior */
+    Polymer.NiceDataBehaviorImpl = {
+
+      properties: {
+        
+        openDataPublished: {
+          type: String,
+          value: 'value'
+        },
+
+        openData: {
+          type: Object
+        },
+
+        openDataId: {
+          type: String
+        },
+        
+        categoryOpenDataPicked: {
+          type: String,
+          observer: '_categoryOpenDataChanged'
+        },
+
+        openDataPath: {
+          type: Object,
+          readOnly: true,
+          value: function() { return this._openDataPath; }
+        },
+
+        openDataGroup: {
+          type: String,
+          readOnly: true,
+          // reflectToAttribute: true,
+          value: function() { return this._openDataGroup; }
+        }
+      },
+      
+      get _openDataPublished() {
+        return 'Published'
+      },
+
+      get _openDataGroup() {
+        return 'open_data_group';
+      },
+
+      get _openDataPath() {
+        var options = this._version + '/' + this._openDataGroup + '/options';
+        return {
+          openData: this._version + '/' + this._openDataGroup + '/open_data',
+          owners: this._version + '/' + this._openDataGroup + '/owners',
+          media: this._version + '/' + this._openDataGroup + '/media',
+          tagWords: this._version + '/' + this._openDataGroup + '/tagwords',
+          options: {
+            published: options + '/published',
+          }
+        };
+      },
+      
+      observers: [
+        '_checkOpenDataArray(publishedOpenData, "publishedOpenData")',
+        '_checkPublishedOpenData(publishedOpenData.splices, "publishedOpenData")',
+        '_checkPublishedOpenData(trendingOpenData.splices, "trendingOpenData", "viewsPublished")',
+      ],
+      
+      _checkOpenDataArray: function(e, s) {
+        this._checkPublishedOpenData(e, s);
+      },
+      
+      _checkPublishedOpenData: function(e, s, v) {
+        this[s+'Sorted'] = [];
+        this[s+'Sorted'] = this[s].sort(this._openDataSorter.bind(this, v ? v : 'value'));
+        // this.notifySplices(s+'Sorted');
+      },
+      
+      _openDataSorter: function(sorter, a, b) {
+        return a[sorter] < b[sorter];
+      },
+      
+      _categoryOpenDataChanged: function(c) {
+        console.log(c)
+        if (c==='all') {
+          this.openDataPublished = 'value';
+        } else {
+          this.openDataPublished = c + this._openDataPublished;
+        }
+        
+        console.log(this.frontPublished)
+      },
+
+      insertNewOpenData: function() {
+        if (!(this.$$('#create-new-title').value && this.$$('#create-new-title').value.trim().length >= 0)) {
+          this._catchError(new Error('Error: cannot create new entry'));
+          return;
+        }
+
+        if (
+          firebase &&
+          this.checkPermission &&
+          this.roles &&
+          this.checkPermission(this.roles.staff) &&
+          this.user
+        ) {
+          var key = firebase.database().ref(this.openDataPath.openData).push().key;
+          if (key) {
+            this.$.toaster.show('Creating a new entry');
+            var updates = {};
+            updates[this.openDataPath.openData +'/' + key] = {
+              title: this.$$('#create-new-title').value,
+              date_published: this._todayUTC,
+              date_created: this._todayUTC
+            };
+            updates[this.openDataPath.owners + '/' + key] = {owner: this.user.uid};
+            updates[this.openDataPath.options.published + '/' + key] = {draft: this._todayUTC};
+            firebase.database().ref().update(updates).then(function() {
+              window.location.assign('/data/edit/' + key);
+            }.bind(this)).catch(function(err) {
+              this._catchError(err);
+            }.bind(this))
+          } else {
+            this._catchError(new Error('Error: Cannot create new entry'));
+          }
+        } else {
+          this._catchError(new Error('Error: Doesn\'t have permission to create a new entry'));
+        }
+      },
+
+      // _checkVideoString: function(video) {
+      //   return video && video.trim && video.trim().length > 0
+      // },
+
+
+    };
+    Polymer.NiceDataBehavior = [
+      Polymer.NiceUtilsBehavior,
+      Polymer.NiceDataBehaviorImpl
+    ];
+  })();
+</script>

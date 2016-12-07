@@ -1,0 +1,54 @@
+<link rel="import" href="../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../nice-module/nice-behaviors/nice-utils-behavior.html">
+<script>
+  (function(){
+    'use strict';
+
+    /** @polymerBehavior Polymer.PagesBehavior */
+    Polymer.NicePagesBehaviorImpl = {
+
+      properties: {
+        
+        pageBeingEdited: {
+          type: Boolean,
+          value: false
+        },
+
+        pageObject: {
+          type: Object
+        },
+
+        pagePath: {
+          type: Object,
+          readOnly: true,
+          value: function() { return this._pagePath; }
+        },
+
+        pageGroup: {
+          type: String,
+          readOnly: true,
+          // reflectToAttribute: true,
+          value: function() { return this._aboutUsGroup; }
+        }
+      },
+
+      get _pageGroup() {
+        return 'about_us_group';
+      },
+
+      get _pagePath() {
+        return {
+          aboutUs: this._version + '/' + this._pageGroup + '/about_us',
+          contactUs: this._version + '/' + this._pageGroup + '/contact_us',
+          media: this._version + '/' + this._pageGroup + '/media',
+        };
+      },
+
+
+    };
+    Polymer.NicePagesBehavior = [
+      Polymer.NiceUtilsBehavior,
+      Polymer.NicePagesBehaviorImpl
+    ];
+  })();
+</script>

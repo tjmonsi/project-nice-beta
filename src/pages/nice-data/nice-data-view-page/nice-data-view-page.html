@@ -1,0 +1,55 @@
+<!-- Polymer dependencies -->
+<link rel="import" href="../../../../bower_components/polymer/polymer.html">
+
+<!-- Polymer Elements dependencies -->
+<link rel="import" href="../../../../bower_components/app-route/app-route.html">
+
+<!-- Component dependencies -->
+<link rel="import" href="../../../components/nice-data/nice-data-component/nice-data-component.html">
+
+<!-- Style dependencies -->
+<link rel="import" href="nice-data-view-page-style.html">
+
+<dom-module id="nice-data-view-page">
+  <template>
+    <style is="custom-style" include="nice-data-view-page-style">
+      :host {
+        display: block;
+      }
+    </style>
+  
+    <app-route
+      route="{{route}}"
+      pattern="/:page"
+      data="{{routeData}}"></app-route>
+  
+    <nice-data-component open-data-id="[[openDataId]]" user="[[user]]"></nice-data-component>
+    
+  </template>
+  <script>
+    Polymer({
+      is: 'nice-data-view-page',
+      
+      properties: {
+        route: {
+          type: Object
+        },
+        routeData: {
+          type: Object
+        },
+        articleId: {
+          type: String
+        }
+      },
+      
+      observers: [
+        '_routeDataChanged(routeData.page)'  
+      ],
+      
+      _routeDataChanged: function(page) {
+        console.log(page)
+        this.openDataId = page;
+      }
+    })
+  </script>
+</dom-module>

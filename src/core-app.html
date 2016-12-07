@@ -75,13 +75,34 @@
         <nice-about-page 
           page="about" 
           source="/src/pages/nice-about/nice-about-page.html" 
-          label="ABOUT US"></nice-about-page>
+          label="ABOUT US"
+          user="[[user]]">
+          <rc-core-route 
+              sub
+              prefix="/about"
+              route="{{subroute}}"
+              default-page="view"
+              not-found-tag="nice-not-found-page"
+              not-found-source="/src/pages/nice-not-found/nice-not-found-page.html"
+              user="{{user}}">
+            <nice-about-view-page 
+                page="view" 
+                source="/src/pages/nice-about/nice-about-view-page/nice-about-view-page.html"
+                user="[[user]]"></nice-about-view-page>
+            <nice-about-edit-page 
+                page="edit" 
+                source="/src/pages/nice-about/nice-about-edit-page/nice-about-edit-page.html"
+                user="[[user]]"
+                auth></nice-article-edit-page>
+          </rc-core-route>
+          
+        </nice-about-page>
           
         <nice-article-page 
-          page="article" 
-          source="/src/pages/nice-article/nice-article-page.html" 
-          label="FEATURES"
-          user="[[user]]">
+            page="article" 
+            source="/src/pages/nice-article/nice-article-page.html" 
+            label="FEATURES"
+            user="[[user]]">
           <rc-core-route 
             sub
             prefix="/article"
@@ -89,11 +110,13 @@
             default-page="list"
             not-found-tag="nice-not-found-page"
             not-found-source="/src/pages/nice-not-found/nice-not-found-page.html"
-            subroute="{{articleRoute}}">
+            subroute="{{articleRoute}}"
+            user="{{user}}">
             <nice-article-list-page 
               page="list" 
               source="/src/pages/nice-article/nice-article-list-page/nice-article-list-page.html"
-              query-params="{{queryParams}}"></nice-article-list-page>
+              query-params="{{queryParams}}"
+              user="{{user}}"></nice-article-list-page>
             <nice-article-view-page 
               page="view" 
               source="/src/pages/nice-article/nice-article-view-page/nice-article-view-page.html"
@@ -103,21 +126,149 @@
               page="edit" 
               source="/src/pages/nice-article/nice-article-edit-page/nice-article-edit-page.html"
               route="[[articleRoute]]"
-              user="[[user]]"></nice-article-edit-page>
+              user="[[user]]"
+              auth></nice-article-edit-page>
           </rc-core-route>
         </nice-article-page>
           
         <nice-data-page 
-          page="data" 
-          source="/src/pages/nice-data/nice-data-page.html" 
-          label="DATA"></nice-data-page>
+            page="data" 
+            source="/src/pages/nice-data/nice-data-page.html" 
+            label="DATA"
+            user="[[user]]">
+          <rc-core-route 
+              sub
+              prefix="/data"
+              route="{{subroute}}"
+              default-page="list"
+              not-found-tag="nice-not-found-page"
+              not-found-source="/src/pages/nice-not-found/nice-not-found-page.html"
+              subroute="{{openDataRoute}}"
+              user="{{user}}">
+            <nice-data-list-page 
+              page="list" 
+              source="/src/pages/nice-data/nice-data-list-page/nice-data-list-page.html"
+              query-params="{{queryParams}}"
+              user="{{user}}"></nice-data-list-page>
+            <nice-data-view-page 
+              page="view" 
+              source="/src/pages/nice-data/nice-data-view-page/nice-data-view-page.html"
+              route="[[openDataRoute]]"
+              user="[[user]]"></nice-data-view-page>
+            <nice-data-edit-page 
+              page="edit" 
+              source="/src/pages/nice-data/nice-data-edit-page/nice-data-edit-page.html"
+              route="[[openDataRoute]]"
+              user="[[user]]"
+              auth></nice-data-edit-page>
+          </rc-core-route>
+        </nice-data-page>
           
         <nice-dashboard-page 
-          page="dashboard" 
-          source="/src/pages/nice-dashboard/nice-dashboard-page.html" 
-          label="DASHBOARD"
-          auth></nice-dashboard-page>
+            page="dashboard" 
+            source="/src/pages/nice-dashboard/nice-dashboard-page.html" 
+            label="DASHBOARD"
+            page="{{pageDashboard}}"
+            user="{{user}}"
+            auth>
+          <rc-core-route 
+              sub
+              prefix="/dashboard"
+              route="{{subroute}}"
+              default-page="home"
+              not-found-tag="nice-not-found-page"
+              not-found-source="/src/pages/nice-not-found/nice-not-found-page.html"
+              subroute="{{openDataRoute}}"
+              user="{{user}}"
+              page="{{pageDashboard}}">
+            
+            <nice-dashboard-home-page 
+              page="home" 
+              source="/src/pages/nice-dashboard/nice-dashboard-home-page/nice-dashboard-home-page.html"
+              query-params="{{queryParams}}"
+              user="{{user}}"
+              auth></nice-dashboard-home-page>
+              
+            <nice-dashboard-article-page 
+              page="article" 
+              source="/src/pages/nice-dashboard/nice-dashboard-article-page/nice-dashboard-article-page.html"
+              query-params="{{queryParams}}"
+              user="{{user}}"
+              auth></nice-dashboard-article-page>
+              
+            <nice-dashboard-data-page 
+              page="data" 
+              source="/src/pages/nice-dashboard/nice-dashboard-data-page/nice-dashboard-data-page.html"
+              query-params="{{queryParams}}"
+              user="{{user}}"
+              auth></nice-dashboard-data-page>
+              
+            <nice-dashboard-member-page 
+              page="data" 
+              source="/src/pages/nice-dashboard/nice-dashboard-member-page/nice-dashboard-member-page.html"
+              query-params="{{queryParams}}"
+              user="{{user}}"
+              auth></nice-dashboard-member-page>
+          </rc-core-route>
+        </nice-dashboard-page>
           
+        <nice-member-page 
+            page="member" 
+            source="/src/pages/nice-member/nice-member-page.html" 
+            label="MEMBERS"
+            user="[[user]]"
+            auth>
+          <rc-core-route 
+              sub
+              prefix="/member"
+              route="{{subroute}}"
+              default-page="list"
+              not-found-tag="nice-not-found-page"
+              not-found-source="/src/pages/nice-not-found/nice-not-found-page.html"
+              subroute="{{memberRoute}}"
+              user="{{user}}">
+            <nice-member-list-page 
+                page="list" 
+                source="/src/pages/nice-member/nice-member-list-page/nice-member-list-page.html"
+                query-params="{{queryParams}}"
+                user="{{user}}"
+                auth></nice-member-list-page>
+            <nice-member-view-page 
+                page="view" 
+                source="/src/pages/nice-member/nice-member-view-page/nice-member-view-page.html"
+                route="[[memberRoute]]"
+                user="[[user]]"
+                auth></nice-member-view-page>
+            <nice-member-edit-page 
+                page="edit" 
+                source="/src/pages/nice-member/nice-member-edit-page/nice-member-edit-page.html"
+                route="[[memberRoute]]"
+                user="[[user]]"
+                auth></nice-member-edit-page>
+          </rc-core-route>
+        </nice-member-page>
+        
+        <nice-profile-page 
+          page="profile" 
+          source="/src/pages/nice-profile/nice-profile-page.html" 
+          label="PROFILE"
+          user="[[user]]">
+          <rc-core-route 
+              sub
+              prefix="/profile"
+              route="{{subroute}}"
+              default-page="view"
+              not-found-tag="nice-not-found-page"
+              not-found-source="/src/pages/nice-not-found/nice-not-found-page.html"
+              user="{{user}}">
+            <nice-profile-view-page 
+                page="view" 
+                source="/src/pages/nice-profile/nice-profile-view-page/nice-profile-view-page.html"
+                user="[[user]]"></nice-profile-view-page>
+          </rc-core-route>
+          
+        </nice-profile-page>
+        
       </rc-core-route>
     </rc-core-shell>
     

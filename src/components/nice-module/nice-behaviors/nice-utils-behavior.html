@@ -24,6 +24,7 @@
 
       _forceZero: function(obj, zeroValue) {
         if (zeroValue === null || zeroValue === undefined) zeroValue = false;
+        console.log(typeof obj)
         return typeof obj === 'object' && this._isEmpty(obj) ? zeroValue : obj;
       },
 
@@ -33,10 +34,15 @@
             return false;
         }
 
+        if (obj && (obj.length !== null || obj.length !== undefined)) {
+          return obj.length === 0;
+        }
+
         return JSON.stringify(obj) === JSON.stringify({});
       },
       
       _trimText: function(text, length) {
+        // console.log(text_thisUrl)
         var l = length ? length : 35;
         if (typeof text === 'string') {
           return text.length >= l ? text.substring(0, l).trim() + '...' : text;  
@@ -77,7 +83,8 @@
       },
 
       _catchError: function(error) {
-        this._showMessage('Error: ' + error.detail && error.detail.message ? error.detail.message : error.message, true);
+        console.log(error)
+        // this._showMessage('Error: ' + error.detail && error.detail.message ? error.detail.message : error.message, true);
       },
       
       _textToUrl: function(text) {

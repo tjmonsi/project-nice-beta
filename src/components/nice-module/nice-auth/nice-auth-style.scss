@@ -11,16 +11,17 @@
   .nice-auth-item {
     color: $gray-dark;
     text-decoration: none;
-    margin-left: 25px;
+    margin-left: 15px;
     margin-right: 80px;
+    font-size: 0.7em;
     
     @include tablet {
       margin-right: 20px;
-      font-size: 0.7em;
+      
     }
     
     @include smalldesktop {
-      font-size: 0.7em;
+      // font-size: 0.7em;
       margin-right: 20px;
       margin-left: 10px;
     }

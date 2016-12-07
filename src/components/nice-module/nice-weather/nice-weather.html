@@ -1,0 +1,67 @@
+<link rel="import" href="../../../../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../../../../bower_components/paper-material/paper-material.html">
+<link rel="import" href="../../../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+
+<link rel="import" href="nice-weather-style.html">
+
+<dom-module id="nice-weather">
+  <template>
+
+    <style is="custom-style" include="nice-weather-style iron-flex iron-flex-alignment iron-flex-factors">
+    </style>
+    
+
+    <paper-material class="weather-object">
+      <h1>Weather</h1>
+      
+      <h3 class="location">[[currentObserversation.display_location.full]]</h3>
+      [[currentObserversation.display_location.city]]
+      <hr/>
+      <div class="horizontal layout">
+        <div class="flex">
+          <span class="temperature">[[currentObserversation.temp_c]] C</span><br/>
+          <span class="feels-like">Feels like [[currentObserversation.feelslike_c]] C</span>
+        </div>
+        <div class="flex">
+          <div class="horizontal layout">
+            <img src="http://icons.wxug.com/i/c/k/mostlycloudy.gif"  style="margin-right: 10px">
+            <div class="flex humidity">
+              Relative humidity: [[currentObserversation.relative_humidity]]
+            </div>
+          </div>
+        </div>
+      </div>
+      <hr/>
+      
+      <a class="price-watch" href="http://www.da.gov.ph/index.php/price-watch" target="_blank">
+        
+        Price Watch. Click here...
+        
+      </a>
+      
+    </paper-material>
+  </template>
+  <script>
+    Polymer({
+      is: 'nice-weather',
+
+      properties: {
+        currentObserversation: {
+          type: Object
+        },
+        forecast: {
+          type: Object
+        }
+      },
+
+      setData: function(data) {
+        console.log(data)
+        this.set('currentObserversation', data.current_observation);
+        this.set('forecast', data.forecast);
+        console.log(this.currentObserversation)
+      }
+    })
+  </script>
+</dom-module>

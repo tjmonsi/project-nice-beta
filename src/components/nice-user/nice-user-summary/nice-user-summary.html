@@ -1,0 +1,304 @@
+<!-- Polymer dependencies -->
+<link rel="import" href="../../../../bower_components/polymer/polymer.html">
+
+<!-- Polymer Elements dependencies -->
+<link rel="import" href="../../../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="../../../../bower_components/polymerfire/firebase-document.html">
+<link rel="import" href="../../../../bower_components/paper-material/paper-material.html">
+<link rel="import" href="../../../../bower_components/iron-image/iron-image.html">
+<link rel="import" href="../../../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../../../bower_components/paper-checkbox/paper-checkbox.html">
+
+<link rel="import" href="../../../../bower_components/paper-spinner/paper-spinner.html">
+<link rel="import" href="../../../../bower_components/paper-tooltip/paper-tooltip.html">
+<link rel="import" href="../../../../bower_components/paper-toast/paper-toast.html">
+<link rel="import" href="../../../../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../../../../bower_components/iron-icons/editor-icons.html">
+
+
+<!-- Component dependencies -->
+<!-- RC-Layout dependencies -->
+<link rel="import" href="../../rc-layout/rc-side-content/rc-side-content.html">
+
+<!-- Behvaior dependencies -->
+<link rel="import" href="../../rc-core/rc-core-utils-behavior.html">
+<link rel="import" href="../nice-user-behavior/nice-user-behavior.html">
+
+<!-- Style dependencies -->
+<link rel="import" href="nice-user-summary-style.html">
+
+<dom-module id="nice-user-summary">
+  <template>
+    <style is="custom-style" include="nice-user-summary-style iron-flex iron-flex-alignment iron-flex-factors">
+      :host {
+        display: block;
+      }
+    </style>
+    
+    <firebase-document
+      id="data-ref"
+      data="{{profile}}"
+      path="[[userPath.profiles]]/[[memberId]]">
+    </firebase-document>
+
+    <firebase-document
+      id="role-ref"
+      data="{{memberUserRole}}"
+      path="[[userPath.options.members]]/[[memberId]]">
+    </firebase-document>
+
+    <firebase-document
+      id="pending-role-ref"
+      data="{{pendingUserRole}}"
+      path="[[userPath.options.pending]]/[[memberId]]">
+    </firebase-document>
+
+    <firebase-document
+      id="message-ref"
+      path$="[[messagePath.personalMessages]]/[[user.uid]]/[[memberId]]"
+      data="{{pm}}">
+    </firebase-document>
+
+    <firebase-document
+      id="category-ref"
+      path$="[[userPath.categories]]"
+      data="{{categories}}">
+    </firebase-document>
+    
+    
+    <!-- ADD CHECK ON USER ROLE HERE -->
+    <template is="dom-if" if="{{user}}">
+      <firebase-document
+        path="[[userPath.options.members]]/[[user.uid]]"
+        data="{{memberRole}}">
+      </firebase-document>
+    </template>
+    
+    <paper-material style="margin-bottom: 5px">
+      <div class="profile-header-container">
+        <div class="profile-header">
+          <div class="horizontal layout center">
+            <iron-image
+              class="profile-picture"
+              sizing="cover"
+              src="{{profile.image}}"
+              preload
+              fade
+            >
+            </iron-image>
+            <div class="flex">
+              <a class="profile-name" href="/member/view/{{memberId}}">{{showName(profile)}}</a>
+              <hr/>
+              <div class="horizontal layout">
+                <div class="category-title">
+                  Category: {{_getCategory(profile, categories)}}
+                </div>
+              </div>
+              <hr/>
+
+              <div class="">
+
+                <template is="dom-if" if="{{!checkIfUser(memberId, user.uid)}}">
+
+                  <paper-button on-tap="sendMessage">Send Personal Message</paper-button>
+                </template>
+
+                <template is="dom-if" if="{{_checkPermission('admin', owner, user, roles.member)}}">
+                  <paper-checkbox id="admin" on-change="changeAdmin" class="checkboxes">Admin</paper-checkbox>
+                </template>
+                <template is="dom-if" if="{{_checkPermission('editor', owner, user, roles.member)}}">
+                  <paper-checkbox id="editor" on-change="changeEditor" class="checkboxes">Editor</paper-checkbox>
+                </template>
+                <template is="dom-if" if="{{_checkPermission('staff', owner, user, roles.member)}}">
+                  <paper-checkbox id="staff" on-change="changeStaff" class="checkboxes">Staff</paper-checkbox>
+                </template>
+
+                <template is="dom-if" if="{{_checkPermission('editor', owner, user, roles.member)}}">
+                  <template is="dom-if" if="{{checkPermission(roles.admin)}}">
+
+                    <paper-button
+                      on-tap="approvePending"
+                    >
+                      Approve
+                    </paper-button>
+
+                  </template>
+                </template>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </paper-material>
+    
+    
+  </template>
+  <script>
+    Polymer({
+      is: 'nice-user-summary',
+      
+      properties: {
+
+        article: {
+          type: Object
+        },
+        categoryArray: {
+          type: Object
+        },
+        roles: {
+          type: Object,
+        },
+        pm: {
+          type: Object
+        },
+        category: {
+          type: String,
+          value: 'all'
+        },
+        owner: {
+          type: Object,
+          value: function() { return null; }
+        },
+        pendingUserRole: {
+          type: Object,
+          observer: 'check'
+        }
+      },
+      
+      check: function(e) {
+        // console.log(e)
+      },
+      
+      checkPending: function(e) {
+        // console.log(this.pendingUserRole);
+      },
+      
+      // ready: function() {
+      //   // console.log(e)
+      //   console.log(this.userPath.profiles, this.memberId)
+      // },
+      
+      behaviors: [
+        Polymer.NiceUserBehavior  
+      ],
+      
+      observers: [
+        'checkRoles(memberUserRole.*)',
+        'checkPending(pendingUserRole.*)',
+        'setCategory(queryParams.child)'
+      ],
+
+      // behaviors: [
+      //   Polymer.UtilsBehavior,
+      //   Polymer.UserRoleBehavior,
+      //   Polymer.MessageBehavior
+      // ],
+
+      setCategory: function(child) {
+        this.category = child || 'all'
+      },
+
+      checkCategory: function(profile, category) {
+        return category === 'all' || (profile.categories && profile.categories[category])
+      },
+
+      _getCategory: function(p, d) {
+        var c = p.categories;
+        if (!c) return '';
+        var arr = [];
+        for (var i in c) {
+          // console.log(c[i], i)
+          if (d[i] && c[i].value) {
+            arr.push(d[i].name)
+          }
+        }
+        return arr.join(', ')
+      },
+
+      showName: function(p) {
+        return p.displayName || p.email
+      },
+
+      checkRoles: function(r) {
+        var roles = r.value
+        // console.log(this.memberUserRole);
+        // var roles = r.value;
+        setTimeout(function(){
+          if (roles.admin && this.$$('#admin')) {
+            this.$$('#admin').checked = true
+          }
+          if (roles.editor && this.$$('#editor')) {
+            this.$$('#editor').checked = true
+          }
+          if (roles.staff && this.$$('#staff')) {
+            this.$$('#staff').checked = true
+          }
+        }.bind(this), 500)
+
+      },
+
+      changeAdmin: function(e) {
+        var message = e.target.checked ? 'Made an Admin' : 'Removed as Admin';
+        var checked = e.target.checked;
+        this.changeRole(checked, message, 'admin');
+      },
+
+      changeStaff: function(e) {
+        var message = e.target.checked ? 'Made an Staff' : 'Removed as Staff';
+        var checked = e.target.checked;
+        this.changeRole(checked, message, 'staff');
+      },
+
+      changeEditor: function(e) {
+        var message = e.target.checked ? 'Made an Editor' : 'Removed as Editor';
+        var checked = e.target.checked;
+        this.changeRole(checked, message, 'editor');
+      },
+
+      changeRole: function(checked, message, role) {
+        var updates = {}
+        if (checked) {
+          updates[this.userPath.options.members + '/' + this.memberId + '/' + role] = this._todayUTC
+          firebase.database().ref().update(updates).then(function() {
+            this.$.toaster.show(message);
+          }.bind(this)).catch(this._catchError.bind(this))
+        } else {
+          firebase.database().ref(this.userPath.options.members + '/' + this.memberId + '/' + role).remove().then(function() {
+            this.$.toaster.show(message);
+          }.bind(this)).catch(this._catchError.bind(this))
+        }
+      },
+      checkExisting: function(e) {
+        // console.log(this.pendingRole)
+        return this._forceZero(e, false);
+      },
+      approvePending: function() {
+        var updates = {};
+        updates[this.userPath.options.members + '/' + this.memberId] = {
+          membershipDate: this._todayUTC,
+          name: this.profile.displayName || this.profile.email
+        };
+        updates[this.userPath.options.pending + '/' + this.memberId] = null;
+        firebase.database().ref().update(updates).then(function() {
+          this.$.toaster.show('Approved')
+        }.bind(this)).catch(this._catchError.bind(this));
+
+      },
+
+      checkIfUser: function(uid, user) {
+        return uid === user
+      },
+
+      sendMessage: function() {
+        // console.log(this.pm)
+        if (this._forceZero(this.pm, false) && this.pm.value) {
+          window.location.assign('/messages-page/' + this.pm.value);
+        } else {
+          this.insertNewThread((this.user.displayName ? this.user.displayName : this.user.email) + ' - ' + (this.profile.displayName ? this.profile.displayName : this.profile.email), this.user.uid, this.memberId);
+        }
+      }
+    })
+  </script>
+</dom-module>

@@ -1,0 +1,29 @@
+<!-- Polymer dependencies -->
+<link rel="import" href="../../../../bower_components/polymer/polymer.html">
+
+<!-- Polymer Elements dependencies -->
+<link rel="import" href="../../../../bower_components/app-route/app-route.html">
+
+<!-- Component dependencies -->
+<link rel="import" href="../../../components/nice-pages/nice-about-component/nice-about-component.html">
+
+<!-- Style dependencies -->
+<link rel="import" href="nice-about-view-page-style.html">
+
+<dom-module id="nice-about-view-page">
+  <template>
+    <style is="custom-style" include="nice-about-view-page-style">
+      :host {
+        display: block;
+      }
+    </style>
+  
+    <nice-about-component user="[[user]]"></nice-about-component>
+    
+  </template>
+  <script>
+    Polymer({
+      is: 'nice-about-view-page',
+    })
+  </script>
+</dom-module>

@@ -1,0 +1,338 @@
+<link rel="import" href="../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../bower_components/polymerfire/firebase-document.html">
+
+<link rel="import" href="../../../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+
+<link rel="import" href="../../../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../../../bower_components/paper-material/paper-material.html">
+<link rel="import" href="../../../../bower_components/iron-icons/editor-icons.html">
+<link rel="import" href="../../../../bower_components/iron-icons/av-icons.html">
+<link rel="import" href="../../../../bower_components/iron-image/iron-image.html">
+<link rel="import" href="../../../../bower_components/paper-toast/paper-toast.html">
+<link rel="import" href="../../../../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../../../bower_components/paper-spinner/paper-spinner.html">
+<link rel="import" href="../../../../bower_components/marked-element/marked-element.html">
+<link rel="import" href="../../../../bower_components/google-youtube/google-youtube.html">
+<link rel="import" href="../../../../bower_components/paper-tooltip/paper-tooltip.html">
+
+
+<!--<link rel="import" href="../behaviors/utils-behavior.html">-->
+<!--<link rel="import" href="../behaviors/user-role-behavior.html">-->
+<!--<link rel="import" href="../behaviors/message-behavior.html">-->
+
+<!-- Behvaior dependencies -->
+<link rel="import" href="../../rc-core/rc-core-utils-behavior.html">
+<link rel="import" href="../nice-user-behavior/nice-user-behavior.html">
+
+<dom-module id="nice-user-component">
+  <template>
+
+    <style is="custom-style" include="iron-flex iron-flex-alignment iron-flex-factors">
+      :host {
+        width: 100%;
+      }
+
+      :host .profile-header-container {
+        background-color: #BBBBBB;
+        padding: 10px;
+      }
+
+      :host .profile-header, .profile-body {
+        min-width: 300px;
+        max-width: 1000px;
+      }
+
+      :host .profile-picture {
+        width: 200px;
+        height: 200px;
+        margin-right: 20px;
+      }
+
+      :host .buttons a {
+        text-decoration: none;
+        color: inherit;
+      }
+
+      :host table {
+        border: 1px solid black;
+        border-spacing: 0px;
+      }
+
+      :host td, th {
+        border: 1px solid black;
+        padding: 10px;
+        margin: 0;
+      }
+
+      :host tr {
+        padding: 0;
+        margin: 0;
+      }
+
+      :host .photoblog-item {
+        min-width: 150px;
+        cursor: pointer;
+      }
+
+      :host .photoblog-item iron-image{
+        width: 100%;
+        height: 150px;
+      }
+
+      :host #photoblog-dialog {
+        width: 70%;
+        max-width: 540px;
+      }
+
+      :host #photoblog-dialog-image {
+        width: 100%;
+        max-width: 500px;
+      }
+
+      :host .caption {
+        text-align: center;
+      }
+
+      :host .category-title {
+        font-size: 0.8em;
+      }
+
+      :host .profile-body-text {
+        min-width: 300px;
+      }
+
+      :host .by-line {
+        font-size: 0.8em;
+      }
+
+      :host .category {
+        font-size: 0.8em;
+        margin-left: 5px;
+      }
+
+      :host .profile-name {
+        margin-bottom: 0px;
+      }
+    </style>
+
+    <firebase-document
+      id="data-ref"
+      data="{{profile}}"
+      path$="[[userPath.profiles]]/[[memberId]]">
+    </firebase-document>
+    <firebase-document
+      id="media-body-ref"
+      path$="[[userPath.media]]/[[memberId]]"
+      data="{{media}}">
+    </firebase-document>
+    <firebase-document
+      id="message-ref"
+      path$="[[messagePath.personalMessages]]/[[user.uid]]/[[memberId]]"
+      data="{{pm}}">
+    </firebase-document>
+
+    <firebase-document
+      id="category-ref"
+      path$="[[userPath.categories]]"
+      data="{{categories}}">
+    </firebase-document>
+
+    <template is="dom-if" if="{{_forceZero(profile)}}">
+      <div class="horizontal layout profile-header-container">
+        <div class="flex"></div>
+        <div class="flex-3 profile-header">
+          <div class="horizontal layout center">
+            <iron-image
+              class="profile-picture"
+              sizing="cover"
+              src="{{profile.image}}"
+              preload
+              fade
+            >
+            </iron-image>
+            <div class="flex">
+              <h2 class="profile-name">{{profile.displayName}}</h2>
+              <div class="by-line horizontal layout">
+                Email: {{profile.email}}
+              </div>
+              <template is="dom-if" if="{{profile.contact}}">
+                <div class="by-line horizontal layout">
+                  Contact Number: {{profile.contact}}
+                </div>
+              </template>
+              <hr/>
+              <div class="horizontal layout">
+                <div class="category-title">
+                  Category: {{_getCategory(profile, categories)}}
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+        <div class="flex"></div>
+      </div>
+
+      <div class="horizontal layout profile-body-container">
+        <div class="flex"></div>
+        <div class="flex-3 profile-body">
+          <div class="horizontal layout">
+            <div class="flex-3 profile-body-text">
+
+              <h3>Address:</h3>
+              <div class="address">
+                {{profile.address}}
+              </div>
+              <h3>About me:</h3>
+              <marked-element markdown="{{profile.body}}">
+                <div class="markdown-html"></div>
+              </marked-element>
+              <div class="buttons">
+                <template is="dom-if" if="{{!checkIfUser(memberId, user.uid)}}">
+
+                  <paper-button on-tap="sendMessage">Send Personal Message</paper-button>
+                </template>
+
+                <a href="/member-page/">
+                  <paper-button>Go back</paper-button>
+                </a>
+
+              </div>
+            </div>
+            <div class="flex-2">
+              <h3>Profile Album: </h3>
+              <div class="horizontal layout wrap">
+                <template is="dom-repeat" items="{{photoblog}}">
+                  <paper-material class="photoblog-item flex">
+                    <iron-image
+                      src="{{item.downloadURL}}"
+                      data-caption$="{{item.caption}}"
+                      sizing="cover"
+                      preload
+                      fade
+                      on-tap="_openPhotoBlog"
+                    ></iron-image>
+                  </paper-material>
+                </template>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="flex"></div>
+      </div>
+    </template>
+    <template is="dom-if" if="{{!_forceZero(profile)}}">
+      <div class="horizontal layout">
+        <div class="flex"></div>
+        <div class="center flex" style="margin-top: 200px; text-align: center">
+          <paper-spinner alt="Loading Profile" active></paper-spinner>
+        </div>
+        <div class="flex"></div>
+      </div>
+    </template>
+
+    <paper-dialog
+      id="photoblog-dialog"
+      entry-animation="scale-up-animation"
+      exit-animation="fade-out-animation">
+
+      <div class="horizontal layout">
+        <div class="flex">
+          <a id="photoblog-dialog-image-full" target="_blank">
+            <iron-image
+              id="photoblog-dialog-image"
+              preload
+              fade
+            ></iron-image>
+          </a>
+          <div class="caption">
+            <marked-element id="photoblog-dialog-caption">
+              <div class="markdown-html"></div>
+            </marked-element>
+          </div>
+
+        </div>
+      </div>
+    </paper-dialog>
+
+    <paper-toast id="toaster"></paper-toast>
+
+  </template>
+  <script>
+    Polymer({
+
+      is: 'nice-user-component',
+
+      properties: {
+        profile: {
+          type: Object
+        },
+        pm: {
+          type: Object
+        }
+      },
+
+      observers: [
+        '_checkPhotoBlogData(media)'
+      ],
+
+      behaviors: [
+        // Polymer.UtilsBehavior,
+        Polymer.NiceUserBehavior,
+        // Polymer.MessageBehavior
+      ],
+
+      check: function(o) {
+        console.log(o)
+      },
+
+      _getCategory: function(p, d) {
+        var c = p.categories;
+        if (!c) return '';
+        var arr = [];
+        for (var i in c) {
+          // console.log(c[i], i)
+          if (d[i] && c[i].value) {
+            arr.push(d[i].name)
+          }
+        }
+        return arr.join(', ')
+      },
+
+      checkIfUser: function(uid, user) {
+        console.log(uid, user)
+        return uid === user
+      },
+
+      sendMessage: function() {
+        if (this._forceZero(this.pm, false) && this.pm.value) {
+          window.location.assign('/messages-page/' + this.pm.value);
+        } else {
+          this.insertNewThread((this.user.displayName ? this.user.displayName : this.user.email) + ' - ' + (this.profile.displayName ? this.profile.displayName : this.profile.email), this.user.uid, this.memberId);
+        }
+      },
+
+      _checkPhotoBlogData: function(e) {
+        this.photoblog = [];
+        for (var i in e) {
+          this.push('photoblog', e[i]);
+        }
+      },
+
+      _openPhotoBlog: function(e) {
+        var image = e.target.src;
+        var caption = e.target.getAttribute('data-caption');
+        this.$$('#photoblog-dialog').open();
+        this.$$('#photoblog-dialog-image').src = image;
+        this.$$('#photoblog-dialog-image-full').setAttribute('href', image);
+        this.$$('#photoblog-dialog-image').shadowRoot.querySelector('#img').setAttribute('style' , 'width: 100%; max-width: 500px');
+        this.$$('#photoblog-dialog-caption').markdown = caption;
+      },
+
+      // /(youtu(?:\.be|be\.com)\/(?:.*v(?:\/|=)|(?:.*\/)?)([\w'-]+))/i
+
+    });
+  </script>
+</dom-module>

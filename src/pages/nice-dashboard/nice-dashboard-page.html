@@ -2,9 +2,12 @@
 <link rel="import" href="../../../bower_components/polymer/polymer.html">
 
 <!-- Polymer Elements dependencies -->
-
+<link rel="import" href="../../../bower_components/paper-menu/paper-menu.html">
+<link rel="import" href="../../../bower_components/paper-item/paper-item.html">
 
 <!-- Component dependencies -->
+<!-- RC-Layout dependencies -->
+<link rel="import" href="../../components/rc-layout/rc-side-content/rc-side-content.html">
 
 <!-- Style dependencies -->
 <link rel="import" href="nice-dashboard-page-style.html">
@@ -16,6 +19,30 @@
         display: block;
       }
     </style>
+    
+    <rc-side-content right-content>
+      <div side-content>
+        <paper-menu attr-for-selected="name" selected="{{page}}" role="navigation" class="drawer-list">
+          <a href="/dashboard/home/" name="home" tabindex="-1">
+            <paper-item>Dashboard Home</paper-item>
+          </a>
+          <a href="/dashboard/article/" name="article" tabindex="-1">
+            <paper-item>Pending Articles</paper-item>
+          </a>
+          <a href="/dashboard/data/" name="data" tabindex="-1">
+            <paper-item>Pending Open Data Entries</paper-item>
+          </a>
+          <a href="/dashboard/member/" name="member" tabindex="-1">
+            <paper-item>Member Requests</paper-item>
+          </a>
+        </paper-menu>
+      </div>
+      <div main-content>
+        <content></content>
+      </div>
+    </rc-side-content>
+    
+    
     
   </template>
   <script>

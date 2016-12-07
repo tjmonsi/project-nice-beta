@@ -1,0 +1,162 @@
+<!-- Polymer dependencies -->
+<link rel="import" href="../../../../bower_components/polymer/polymer.html">
+
+<!-- Polymer Elements dependencies -->
+<link rel="import" href="../../../../bower_components/polymerfire/firebase-query.html">
+<link rel="import" href="../../../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="../../../../bower_components/iron-scroll-threshold/iron-scroll-threshold.html">
+<!--<link rel="import" href="../../../../bower_components/iron-list/iron-list.html">-->
+
+
+<!-- Component dependencies -->
+<!-- RC-Layout dependencies -->
+<link rel="import" href="../../../components/rc-layout/rc-side-content/rc-side-content.html">
+
+<!-- Nice-Module dependencies -->
+<link rel="import" href="../../../components/nice-module/nice-hero-section/nice-hero-section.html">
+<link rel="import" href="../../../components/nice-module/nice-category-list/nice-category-list.html">
+<link rel="import" href="../../../components/nice-data/nice-data-summary-content/nice-data-summary-content.html">
+
+<!-- Behvaior dependencies -->
+<link rel="import" href="../../../components/nice-data/nice-data-behaviors/nice-data-behavior.html">
+
+<!-- Style dependencies -->
+<link rel="import" href="nice-data-list-page-style.html">
+
+<!-- JS dependencies -->
+<script src="../../../../bower_components/underscore/underscore.js"></script>
+
+<dom-module id="nice-data-list-page">
+  <template>
+    <style is="custom-style" include="nice-data-list-page-style iron-flex iron-flex-alignment iron-flex-factors">
+      :host {
+        display: block;
+      }
+    </style>
+    
+    <firebase-query
+      path="[[openDataPath.options.published]]"
+      data="{{publishedOpenData}}"
+      order-by-child="value"
+      limit-to-last="[[limit]]"
+      start-at="[[_startAt]]">
+    </firebase-query>
+    
+    <firebase-query
+      path="[[openDataPath.options.published]]"
+      data="{{trendingOpenData}}"
+      order-by-child="viewsPublished"
+      limit-to-last="10"
+      start-at="[[_startAt]]">
+    </firebase-query>
+    
+    
+    
+    <div class="horizontal layout">
+      <div class="flex"></div>
+      <div class="flex-3 data-list">
+        <h1>Open Data</h1>
+        <iron-scroll-threshold on-lower-threshold="_loadMoreData" scroll-target="document"
+            lower-threshold="500">
+
+          <template is="dom-repeat" items="[[items]]" >
+            <nice-data-summary-content open-data-id="[[item.$key]]" user="[[user]]"></nice-data-summary-content>  
+          </template>
+        </iron-scroll-threshold>  
+      </div>
+      <div class="flex"></div>
+    </div>
+    <!--<rc-side-content class="nice-article-list">-->
+    <!--  <div main-content>-->
+        
+        
+        <!-- LIST HERE -->
+        
+    <!--  </div>-->
+    <!--  <div side-content>-->
+    <!--    <div class="side-title">-->
+    <!--      <h1>-->
+    <!--        Trending-->
+    <!--      </h1>-->
+    <!--    </div>-->
+    <!--    <div class="side-list">-->
+    <!--      <template is="dom-repeat" items="[[trendingArticles]]">-->
+    <!--        <nice-summary-side-content article-id="[[item.$key]]"></nice-summary-side-content>-->
+    <!--      </template>-->
+    <!--    </div>-->
+    <!--  </div>-->
+    <!--</rc-side-content>-->
+    
+    
+  </template>
+  <script>
+    Polymer({
+      is: 'nice-data-list-page',
+      
+      properties: {
+        limit: {
+          type: Number,
+          value: 5
+        },
+        items: {
+          type: Array,
+          value: function() { return []; }
+        }
+      },
+      
+      behaviors: [
+        Polymer.NiceDataBehavior  
+      ],
+      
+      observers: [
+        '_changeLimit(queryParams.limit)',
+        '_changePublished(publishedOpenData.splices)'
+      ],
+      
+      ready: function() {
+        this.$$('iron-scroll-threshold').selectTarget = Polymer.dom(this);
+      },
+      
+      _changeLimit: function(limit) {
+        this.limit = limit;
+      },
+      
+      _changePublished: function() {
+        // console.log(this.publishedArticles)
+        
+        // console.log(this.publishedArticles);
+        
+        for (var i in this.publishedOpenData) {
+          var index = _.findIndex(this.items, function(item) {
+            // console.log(this.publishedArticles[i].$key, item.$key)
+            return this.publishedOpenData[i].$key === item.$key
+          }.bind(this));
+          
+          // console.log(index);
+          
+          if (index < 0) {
+            this.push('items', this.publishedOpenData[i]);
+            // console.log(this.items)
+          }
+        }
+        
+        var array = this.items.sort(this._openDataSorter.bind(this, 'value'))
+        this.items = [];
+        this.items = array;
+      },
+      
+      _loadMoreData: function() {
+        // console.log('call')
+        this.$$('iron-scroll-threshold').clearTriggers();
+       
+        // if (this.publishedArticles.length <= this.limit) {
+        if (this.limit) {
+          this.limit += 5;  
+        } else {
+          this.limit = 5;
+        }
+      }
+      
+    })
+  </script>
+</dom-module>
